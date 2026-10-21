@@ -35,6 +35,29 @@ const api: VetApi = {
     weightHistory: (input) => ipcRenderer.invoke(IPC.pets.weightHistory, input),
     upcomingVaccines: () => ipcRenderer.invoke(IPC.pets.upcomingVaccines)
   },
+  inventory: {
+    listCategories: (input) =>
+      ipcRenderer.invoke(IPC.inventory.listCategories, input),
+    createCategory: (input) =>
+      ipcRenderer.invoke(IPC.inventory.createCategory, input),
+    updateCategory: (input) =>
+      ipcRenderer.invoke(IPC.inventory.updateCategory, input),
+    setCategoryActive: (input) =>
+      ipcRenderer.invoke(IPC.inventory.setCategoryActive, input),
+    listProducts: (input) => ipcRenderer.invoke(IPC.inventory.listProducts, input),
+    getProduct: (input) => ipcRenderer.invoke(IPC.inventory.getProduct, input),
+    createProduct: (input) => ipcRenderer.invoke(IPC.inventory.createProduct, input),
+    updateProduct: (input) => ipcRenderer.invoke(IPC.inventory.updateProduct, input),
+    setProductActive: (input) =>
+      ipcRenderer.invoke(IPC.inventory.setProductActive, input),
+    listBatches: (input) => ipcRenderer.invoke(IPC.inventory.listBatches, input),
+    listExpiring: () => ipcRenderer.invoke(IPC.inventory.listExpiring),
+    listMovements: (input) => ipcRenderer.invoke(IPC.inventory.listMovements, input),
+    summary: () => ipcRenderer.invoke(IPC.inventory.summary),
+    registerEntry: (input) => ipcRenderer.invoke(IPC.inventory.registerEntry, input),
+    adjustStock: (input) => ipcRenderer.invoke(IPC.inventory.adjustStock, input),
+    exportCsv: () => ipcRenderer.invoke(IPC.inventory.exportCsv)
+  },
   app: {
     info: () => ipcRenderer.invoke(IPC.app.info)
   }

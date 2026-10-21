@@ -117,3 +117,88 @@ export interface UpcomingVaccine {
   nextDueDate: string
   daysUntil: number
 }
+
+export interface ProductCategory {
+  id: number
+  name: string
+  active: boolean
+  productCount: number
+  createdAt: string
+}
+
+export interface ProductRecord {
+  id: number
+  name: string
+  sku: string | null
+  barcode: string | null
+  categoryId: number | null
+  categoryName: string | null
+  unit: string
+  costCents: number
+  priceCents: number
+  stock: number
+  minStock: number
+  active: boolean
+  notes: string | null
+  nextExpiryDate: string | null
+  lowStock: boolean
+  outOfStock: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ProductBatch {
+  id: number
+  productId: number
+  batchCode: string | null
+  expiryDate: string | null
+  quantity: number
+  costCents: number
+  receivedAt: string
+}
+
+export type StockMovementType =
+  | 'entrada'
+  | 'salida'
+  | 'ajuste'
+  | 'devolucion'
+  | 'venta'
+  | 'anulacion'
+
+export interface StockMovement {
+  id: number
+  productId: number
+  productName: string
+  batchId: number | null
+  batchCode: string | null
+  type: StockMovementType
+  quantityDelta: number
+  unitCostCents: number | null
+  reason: string | null
+  referenceType: string | null
+  referenceId: number | null
+  createdByName: string | null
+  createdAt: string
+}
+
+export interface InventorySummary {
+  totalProducts: number
+  activeProducts: number
+  lowStock: number
+  outOfStock: number
+  expiring: number
+  inventoryValueCents: number
+}
+
+export interface ExpiringBatch {
+  batchId: number
+  productId: number
+  productName: string
+  categoryName: string | null
+  unit: string
+  batchCode: string | null
+  expiryDate: string
+  quantity: number
+  costCents: number
+  daysUntilExpiry: number
+}

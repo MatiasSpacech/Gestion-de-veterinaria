@@ -76,6 +76,34 @@ export function calculateAge(birthDate: string | null | undefined): string {
   return `${yearLabel} y ${remainingMonths} ${remainingMonths === 1 ? 'mes' : 'meses'}`
 }
 
+export function formatCurrency(cents: number): string {
+  return (cents / 100).toLocaleString('es-AR', {
+    style: 'currency',
+    currency: 'ARS',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  })
+}
+
+export function formatQuantity(value: number, unit?: string | null): string {
+  const text = value.toLocaleString('es-AR', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2
+  })
+
+  return unit ? `${text} ${unit}` : text
+}
+
+export function formatDateTime(value: string | null | undefined): string {
+  if (!value) {
+    return '—'
+  }
+
+  const date = dayjs(value)
+
+  return date.isValid() ? date.format('DD/MM/YYYY HH:mm') : '—'
+}
+
 export function formatDueIn(daysUntil: number): string {
   if (daysUntil < 0) {
     const days = Math.abs(daysUntil)

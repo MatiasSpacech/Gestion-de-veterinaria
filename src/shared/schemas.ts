@@ -297,3 +297,139 @@ export const weightHistorySchema = z.object({
 })
 
 export type WeightHistoryInput = z.infer<typeof weightHistorySchema>
+
+const optionalCode = (max: number) =>
+  z
+    .string()
+    .trim()
+    .max(max, `El código no puede superar los ${max} caracteres`)
+    .nullable()
+    .optional()
+    .transform((value) => (value && value.length > 0 ? value : null))
+
+const optionalId = idSchema
+  .nullable()
+  .optional()
+  .transform((value) => value ?? null)
+
+const moneyCentsSchema = z
+  .number()
+  .int('El importe debe estar expresado en centavos')
+  .min(0, 'El importe no puede ser negativo')
+  .max(1_000_000_000_00, 'El importe es demasiado alto')
+
+const nonNegativeQuantity = z
+  .number()
+  .finite()
+  .min(0, 'La cantidad no puede ser negativa')
+  .max(1_000_000, 'La cantidad es demasiado alta')
+
+export const createCategorySchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(2, 'El nombre debe tener al menos 2 caracteres')
+    .max(80, 'El nombre no puede superar los 80 caracteres')
+})
+
+export type CreateCategoryInput = z.infer<typeof createCategorySchema>
+
+export const updateCategorySchema = createCategorySchema.extend({
+  id: idSchema
+})
+
+export type UpdateCategoryInput = z.infer<typeof updateCategorySchema>
+
+export const listCategoriesSchema = z.object({
+  includeInactive: z.boolean().optional().default(false)
+})
+
+export type ListCategoriesInput = z.infer<typeof listCategoriesSchema>
+
+const productFieldsSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(2, 'El nombre debe tener al menos 2 caracteres')
+    .max(120, 'El nombre no puede superar los 120 caracteres'),
+  sku: optionalCode(50),
+  barcode: optionalCode(50),
+  categoryId: optionalId,
+  unit: z
+    .string()
+    .trim()
+    .min(1, 'Ingresá la unidad')
+    .max(20, 'La unidad no puede superar los 20 caracteres')
+    .default('unidad'),
+  costCents: moneyCentsSchema,
+  priceCents: moneyCentsSchema,
+  minStock: nonNegativeQuantity,
+  notes: optionalText(1000)
+})
+
+export const createProductSchema = productFieldsSchema
+
+export type CreateProductInput = z.infer<typeof createProductSchema>
+
+export const updateProductSchema = productFieldsSchema.extend({
+  id: idSchema
+})
+
+export type UpdateProductInput = z.infer<typeof updateProductSchema>
+
+export const listProductsSchema = z.object({
+  search: z.string().trim().max(100).optional().default(''),
+  categoryId: optionalId,
+  includeInactive: z.boolean().optional().default(false),
+  stockFilter: z
+    .enum(['all', 'low', 'out', 'expiring'])
+    .optional()
+    .default('all')
+})
+
+export type ListProductsInput = z.infer<typeof listProductsSchema>
+
+export const listProductBatchesSchema = z.object({
+  productId: idSchema
+})
+
+export type ListProductBatchesInput = z.infer<typeof listProductBatchesSchema>
+
+export const listStockMovementsSchema = z.object({
+  productId: optionalId,
+  limit: z.number().int().min(1).max(500).optional().default(200)
+})
+
+export type ListStockMovementsInput = z.infer<typeof listStockMovementsSchema>
+
+export const stockEntrySchema = z.object({
+  productId: idSchema,
+  quantity: z
+    .number()
+    .finite()
+    .positive('La cantidad debe ser mayor a cero')
+    .max(1_000_000, 'La cantidad es demasiado alta'),
+  costCents: moneyCentsSchema,
+  batchCode: optionalCode(60),
+  expiryDate: optionalIsoDate,
+  reason: optionalText(200)
+})
+
+export type StockEntryInput = z.infer<typeof stockEntrySchema>
+
+export const stockAdjustmentSchema = z.object({
+  productId: idSchema,
+  quantityDelta: z
+    .number()
+    .finite()
+    .min(-1_000_000, 'La cantidad es demasiado baja')
+    .max(1_000_000, 'La cantidad es demasiado alta')
+    .refine((value) => value !== 0, 'La cantidad no puede ser cero'),
+  reason: z
+    .string()
+    .trim()
+    .min(2, 'Ingresá el motivo del ajuste')
+    .max(200, 'El motivo no puede superar los 200 caracteres')
+})
+
+export type StockAdjustmentInput = z.infer<typeof stockAdjustmentSchema>

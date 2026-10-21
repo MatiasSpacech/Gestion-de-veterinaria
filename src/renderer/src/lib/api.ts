@@ -78,6 +78,44 @@ export const api = {
       unwrap(window.api.pets.weightHistory(input)),
     upcomingVaccines: () => unwrap(window.api.pets.upcomingVaccines())
   },
+  inventory: {
+    listCategories: (
+      input: Parameters<typeof window.api.inventory.listCategories>[0]
+    ) => unwrap(window.api.inventory.listCategories(input)),
+    createCategory: (
+      input: Parameters<typeof window.api.inventory.createCategory>[0]
+    ) => unwrap(window.api.inventory.createCategory(input)),
+    updateCategory: (
+      input: Parameters<typeof window.api.inventory.updateCategory>[0]
+    ) => unwrap(window.api.inventory.updateCategory(input)),
+    setCategoryActive: (
+      input: Parameters<typeof window.api.inventory.setCategoryActive>[0]
+    ) => unwrap(window.api.inventory.setCategoryActive(input)),
+    listProducts: (input: Parameters<typeof window.api.inventory.listProducts>[0]) =>
+      unwrap(window.api.inventory.listProducts(input)),
+    getProduct: (input: Parameters<typeof window.api.inventory.getProduct>[0]) =>
+      unwrap(window.api.inventory.getProduct(input)),
+    createProduct: (input: Parameters<typeof window.api.inventory.createProduct>[0]) =>
+      unwrap(window.api.inventory.createProduct(input)),
+    updateProduct: (input: Parameters<typeof window.api.inventory.updateProduct>[0]) =>
+      unwrap(window.api.inventory.updateProduct(input)),
+    setProductActive: (
+      input: Parameters<typeof window.api.inventory.setProductActive>[0]
+    ) => unwrap(window.api.inventory.setProductActive(input)),
+    listBatches: (input: Parameters<typeof window.api.inventory.listBatches>[0]) =>
+      unwrap(window.api.inventory.listBatches(input)),
+    listExpiring: () => unwrap(window.api.inventory.listExpiring()),
+    listMovements: (
+      input: Parameters<typeof window.api.inventory.listMovements>[0]
+    ) => unwrap(window.api.inventory.listMovements(input)),
+    summary: () => unwrap(window.api.inventory.summary()),
+    registerEntry: (
+      input: Parameters<typeof window.api.inventory.registerEntry>[0]
+    ) => unwrap(window.api.inventory.registerEntry(input)),
+    adjustStock: (input: Parameters<typeof window.api.inventory.adjustStock>[0]) =>
+      unwrap(window.api.inventory.adjustStock(input)),
+    exportCsv: () => unwrap(window.api.inventory.exportCsv())
+  },
   app: {
     info: () => unwrap(window.api.app.info())
   }

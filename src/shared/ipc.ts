@@ -1,19 +1,29 @@
 import type {
   ChangePasswordInput,
+  CreateCategoryInput,
   CreateClientInput,
   CreateMedicalRecordInput,
   CreatePetInput,
+  CreateProductInput,
   CreateUserInput,
   GetByIdInput,
+  ListCategoriesInput,
   ListClientsInput,
   ListMedicalRecordsInput,
   ListPetsInput,
+  ListProductBatchesInput,
+  ListProductsInput,
+  ListStockMovementsInput,
   LoginInput,
   ResetPasswordInput,
   SetActiveInput,
   SetupAdminInput,
+  StockAdjustmentInput,
+  StockEntryInput,
+  UpdateCategoryInput,
   UpdateClientInput,
   UpdatePetInput,
+  UpdateProductInput,
   UpdateUserInput,
   WeightHistoryInput
 } from './schemas'
@@ -22,8 +32,14 @@ import type {
   AuthStatus,
   ClientDetail,
   ClientRecord,
+  ExpiringBatch,
+  InventorySummary,
   MedicalRecord,
   PetRecord,
+  ProductBatch,
+  ProductCategory,
+  ProductRecord,
+  StockMovement,
   UpcomingVaccine,
   UserRecord,
   WeightEntry
@@ -61,6 +77,24 @@ export const IPC = {
     createMedicalRecord: 'pets:create-medical-record',
     weightHistory: 'pets:weight-history',
     upcomingVaccines: 'pets:upcoming-vaccines'
+  },
+  inventory: {
+    listCategories: 'inventory:list-categories',
+    createCategory: 'inventory:create-category',
+    updateCategory: 'inventory:update-category',
+    setCategoryActive: 'inventory:set-category-active',
+    listProducts: 'inventory:list-products',
+    getProduct: 'inventory:get-product',
+    createProduct: 'inventory:create-product',
+    updateProduct: 'inventory:update-product',
+    setProductActive: 'inventory:set-product-active',
+    listBatches: 'inventory:list-batches',
+    listExpiring: 'inventory:list-expiring',
+    listMovements: 'inventory:list-movements',
+    summary: 'inventory:summary',
+    registerEntry: 'inventory:register-entry',
+    adjustStock: 'inventory:adjust-stock',
+    exportCsv: 'inventory:export-csv'
   },
   app: {
     info: 'app:info'
@@ -115,6 +149,36 @@ export interface VetApi {
     ) => Promise<IpcResult<MedicalRecord>>
     weightHistory: (input: WeightHistoryInput) => Promise<IpcResult<WeightEntry[]>>
     upcomingVaccines: () => Promise<IpcResult<UpcomingVaccine[]>>
+  }
+  inventory: {
+    listCategories: (
+      input: ListCategoriesInput
+    ) => Promise<IpcResult<ProductCategory[]>>
+    createCategory: (
+      input: CreateCategoryInput
+    ) => Promise<IpcResult<ProductCategory>>
+    updateCategory: (
+      input: UpdateCategoryInput
+    ) => Promise<IpcResult<ProductCategory>>
+    setCategoryActive: (
+      input: SetActiveInput
+    ) => Promise<IpcResult<ProductCategory>>
+    listProducts: (input: ListProductsInput) => Promise<IpcResult<ProductRecord[]>>
+    getProduct: (input: GetByIdInput) => Promise<IpcResult<ProductRecord>>
+    createProduct: (input: CreateProductInput) => Promise<IpcResult<ProductRecord>>
+    updateProduct: (input: UpdateProductInput) => Promise<IpcResult<ProductRecord>>
+    setProductActive: (input: SetActiveInput) => Promise<IpcResult<ProductRecord>>
+    listBatches: (
+      input: ListProductBatchesInput
+    ) => Promise<IpcResult<ProductBatch[]>>
+    listExpiring: () => Promise<IpcResult<ExpiringBatch[]>>
+    listMovements: (
+      input: ListStockMovementsInput
+    ) => Promise<IpcResult<StockMovement[]>>
+    summary: () => Promise<IpcResult<InventorySummary>>
+    registerEntry: (input: StockEntryInput) => Promise<IpcResult<ProductRecord>>
+    adjustStock: (input: StockAdjustmentInput) => Promise<IpcResult<ProductRecord>>
+    exportCsv: () => Promise<IpcResult<string | null>>
   }
   app: {
     info: () => Promise<IpcResult<AppInfo>>

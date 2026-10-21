@@ -1,5 +1,4 @@
 import {
-  IconBoxSeam,
   IconChartBar,
   IconScissors,
   IconSettings,
@@ -13,6 +12,7 @@ import { LoginPage } from './features/auth/LoginPage'
 import { SetupPage } from './features/auth/SetupPage'
 import { ClientDetailPage } from './features/clients/ClientDetailPage'
 import { ClientsPage } from './features/clients/ClientsPage'
+import { InventoryPage } from './features/inventory/InventoryPage'
 import { PetDetailPage } from './features/pets/PetDetailPage'
 import { PetsPage } from './features/pets/PetsPage'
 import { PlaceholderPage } from './features/placeholder/PlaceholderPage'
@@ -73,17 +73,7 @@ export default function App(): React.JSX.Element {
           <Route path="clientes/:id" element={<ClientDetailPage />} />
           <Route path="mascotas" element={<PetsPage />} />
           <Route path="mascotas/:id" element={<PetDetailPage />} />
-          <Route
-            path="inventario"
-            element={
-              <PlaceholderPage
-                title="Inventario"
-                description="Productos, lotes, vencimientos, movimientos de stock y alertas de reposición."
-                phase="Fase 3"
-                icon={IconBoxSeam}
-              />
-            }
-          />
+          <Route path="inventario" element={<InventoryPage />} />
           <Route
             path="ventas"
             element={

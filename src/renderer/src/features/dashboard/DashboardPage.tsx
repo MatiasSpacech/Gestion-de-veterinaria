@@ -59,7 +59,7 @@ const METRICS: Metric[] = [
     label: 'Productos con stock bajo',
     icon: IconAlertTriangle,
     color: 'orange',
-    hint: 'Disponible en la fase de inventario'
+    hint: 'Reposición pendiente'
   },
   {
     key: 'vaccines',
@@ -78,7 +78,13 @@ export function DashboardPage(): React.JSX.Element {
     queryFn: api.pets.upcomingVaccines,
     enabled: hasPermission('mascotas')
   })
+  const inventoryQuery = useQuery({
+    queryKey: ['inventory', 'summary'],
+    queryFn: api.inventory.summary,
+    enabled: hasPermission('inventario')
+  })
   const upcomingVaccines = vaccinesQuery.data ?? []
+  const inventorySummary = inventoryQuery.data
 
   const greeting = (() => {
     const hour = dayjs().hour()
@@ -137,16 +143,26 @@ export function DashboardPage(): React.JSX.Element {
         {METRICS.map((metric) => {
           const Icon = metric.icon
           const isVaccineMetric = metric.key === 'vaccines'
-          const value = isVaccineMetric
-            ? vaccinesQuery.isPending
+          const isInventoryMetric = metric.key === 'lowStock'
+          let value = '—'
+          let hint = metric.hint
+
+          if (isVaccineMetric) {
+            value = vaccinesQuery.isPending ? '—' : String(upcomingVaccines.length)
+            hint =
+              upcomingVaccines.length > 0
+                ? `${upcomingVaccines.length} para revisar`
+                : 'Sin recordatorios pendientes'
+          }
+
+          if (isInventoryMetric) {
+            value = inventoryQuery.isPending
               ? '—'
-              : String(upcomingVaccines.length)
-            : '—'
-          const hint = isVaccineMetric
-            ? upcomingVaccines.length > 0
-              ? `${upcomingVaccines.length} para revisar`
-              : 'Sin recordatorios pendientes'
-            : metric.hint
+              : String(inventorySummary?.lowStock ?? 0)
+            hint = inventorySummary
+              ? `${inventorySummary.outOfStock} sin stock · ${inventorySummary.expiring} por vencer`
+              : metric.hint
+          }
 
           return (
             <Card key={metric.label} padding="lg">
@@ -301,12 +317,12 @@ export function DashboardPage(): React.JSX.Element {
         variant="light"
         color="vetGreen"
         icon={<IconInfoCircle size={20} />}
-        title="Clientes y mascotas disponibles"
+        title="Clientes, mascotas e inventario disponibles"
       >
         <Text size="sm">
-          Ya podés gestionar clientes, mascotas, historial clínico, evolución de peso
-          y recordatorios de vacunas. Inventario, ventas y peluquería se incorporan
-          en las próximas fases.
+          Ya podés gestionar clientes, mascotas, historial clínico, evolución de peso,
+          recordatorios de vacunas y el inventario con lotes y vencimientos. Ventas y
+          peluquería se incorporan en las próximas fases.
         </Text>
       </Alert>
     </Stack>

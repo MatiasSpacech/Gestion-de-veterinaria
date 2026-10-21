@@ -135,6 +135,69 @@ try {
   await win.getByText('Recordatorios de vacunas', { exact: true }).waitFor()
   await win.getByText(/Firulais · Antirrábica/).waitFor()
 
+  await win
+    .locator('.mantine-NavLink-root')
+    .filter({ hasText: /^Inventario$/ })
+    .click()
+  await win.getByRole('heading', { name: 'Inventario', level: 2 }).waitFor()
+
+  await win.getByRole('button', { name: 'Categorías' }).click()
+  await win.getByRole('heading', { name: 'Categorías de inventario' }).waitFor()
+  await win.getByLabel('Nueva categoría').fill('Accesorios E2E')
+  await win.getByRole('button', { name: 'Agregar' }).click()
+  await win.getByText('Categoría creada').waitFor()
+  await win.keyboard.press('Escape')
+  await win
+    .getByRole('heading', { name: 'Categorías de inventario' })
+    .waitFor({ state: 'hidden' })
+
+  await win.getByRole('button', { name: 'Nuevo producto' }).first().click()
+  await win.getByLabel('Nombre', { exact: true }).waitFor()
+  await win.getByLabel('Nombre', { exact: true }).fill('Alimento Premium E2E')
+  await win.getByRole('combobox', { name: 'Categoría' }).click()
+  await win.getByRole('option', { name: 'Accesorios E2E' }).click()
+  await win.getByLabel('Costo').fill('1000')
+  await win.getByLabel('Precio de venta').fill('1500')
+  await win.getByLabel('Stock mínimo').fill('15')
+  await win.getByRole('button', { name: 'Crear producto' }).click()
+  await win.getByText('Producto creado').waitFor()
+
+  const productRow = win.getByRole('row', { name: /Alimento Premium E2E/ })
+  await productRow.waitFor()
+  await productRow.getByRole('button', { name: 'Acciones' }).click()
+  await win.getByRole('menuitem', { name: 'Registrar entrada' }).click()
+  await win.getByText('Registrar entrada de stock', { exact: true }).waitFor()
+  await win.getByLabel('Cantidad').fill('10')
+  await win.getByLabel('Costo unitario').fill('1000')
+  await win.getByLabel('Lote').fill('LOTE-E2E')
+  await win.getByLabel('Vencimiento').fill(nextVaccineDate)
+  await win.getByRole('button', { name: 'Registrar entrada' }).click()
+  await win.getByText('Entrada registrada').waitFor()
+  await productRow.getByText('10 unidad', { exact: true }).waitFor()
+
+  await win.getByRole('tab', { name: 'Por vencer' }).click()
+  await win
+    .getByRole('tabpanel', { name: 'Por vencer' })
+    .getByText('LOTE-E2E', { exact: true })
+    .waitFor()
+
+  await win.getByRole('tab', { name: 'Movimientos' }).click()
+  await win
+    .getByRole('tabpanel', { name: 'Movimientos' })
+    .getByRole('row', { name: /Alimento Premium E2E/ })
+    .filter({ hasText: 'Entrada' })
+    .waitFor()
+
+  await win
+    .locator('.mantine-NavLink-root')
+    .filter({ hasText: /^Panel$/ })
+    .click()
+  await win
+    .locator('.mantine-Card-root')
+    .filter({ hasText: 'Productos con stock bajo' })
+    .getByText('1', { exact: true })
+    .waitFor()
+
   await win.getByRole('button', { name: /Ana Test/ }).click()
   await win.getByRole('menuitem', { name: 'Cambiar contraseña' }).click()
   await win.getByLabel('Contraseña actual').fill('clave12345')
@@ -160,7 +223,7 @@ try {
 
   passed = true
   console.log(
-    'E2E smoke OK: setup, dashboard, clientes, mascotas, vacuna, recordatorios, contraseña y login.'
+    'E2E smoke OK: setup, dashboard, clientes, mascotas, vacuna, recordatorios, inventario, contraseña y login.'
   )
 } finally {
   await app.close().catch(() => {})
