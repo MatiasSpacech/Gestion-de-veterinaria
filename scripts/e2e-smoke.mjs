@@ -20,12 +20,24 @@ const nextVaccineDate = [
   String(nextVaccine.getDate()).padStart(2, '0')
 ].join('-')
 
-const app = await electron.launch({
-  args: [root],
-  cwd: root,
-  env,
-  timeout: 60_000
-})
+const executableIndex = process.argv.indexOf('--executable')
+const executablePath =
+  executableIndex >= 0 ? process.argv[executableIndex + 1] : null
+const app = await electron.launch(
+  executablePath
+    ? {
+        executablePath: path.resolve(root, executablePath),
+        cwd: root,
+        env,
+        timeout: 60_000
+      }
+    : {
+        args: [root],
+        cwd: root,
+        env,
+        timeout: 60_000
+      }
+)
 
 let passed = false
 

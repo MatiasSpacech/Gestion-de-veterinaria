@@ -1,6 +1,6 @@
 {
   "name": "vetgestion",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Gestión de stock, ventas, clientes, mascotas y peluquería para un local veterinario",
   "main": "./out/main/index.js",
   "author": "VetGestión",
@@ -17,6 +17,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "npm run build && node scripts/e2e-smoke.mjs",
+    "test:e2e:packaged": "node scripts/e2e-smoke.mjs --executable release/win-unpacked/VetGestión.exe",
     "dist": "npm run build && electron-builder --win nsis",
     "dist:dir": "npm run build && electron-builder --win --dir"
   },

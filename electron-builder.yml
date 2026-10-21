@@ -14,11 +14,14 @@ win:
     - target: nsis
       arch:
         - x64
-  artifactName: VetGestion-${version}-setup.${ext}
+  icon: build/icon.ico
+  artifactName: VetGestion-Setup-${version}.${ext}
 nsis:
   oneClick: false
   perMachine: false
   allowToChangeInstallationDirectory: true
   createDesktopShortcut: true
   createStartMenuShortcut: true
+  shortcutName: VetGestión
+  uninstallDisplayName: VetGestión
   deleteAppDataOnUninstall: false

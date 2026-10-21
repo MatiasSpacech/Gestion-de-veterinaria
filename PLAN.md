@@ -238,10 +238,10 @@ Detalles:
 
 ### Fase 7 — Entrega
 
-- Icono y branding.
-- Instalador NSIS.
-- Pruebas finales.
-- Verificación de la aplicación empaquetada.
+- [x] Icono y branding.
+- [x] Instalador NSIS.
+- [x] Pruebas finales.
+- [x] Verificación de la aplicación empaquetada.
 
 ## Pruebas
 
@@ -260,6 +260,7 @@ Detalles:
 - End-to-end:
   - Playwright: primer inicio, panel, clientes, mascotas, vacuna con recordatorio, inventario con categoría, producto, entrada y vencimiento, venta con descuento y anulación con reposición de stock, peluquería con servicios, peluquero, turno, estados y cobro, reportes, usuarios, permisos, configuración, auditoría, cambio de contraseña y login.
   - Comando: `npm.cmd run test:e2e`.
+  - Verificación empaquetada: `npm.cmd run test:e2e:packaged`.
 - Manuales:
   - Alta de cliente y mascota.
   - Vacuna con recordatorio.
@@ -273,6 +274,8 @@ Detalles:
 ## Entregables
 
 - Aplicación funcionando en desarrollo.
-- Instalador `.exe` generado con electron-builder.
+- Instalador `release/VetGestion-Setup-1.0.0.exe` generado con electron-builder.
+- Aplicación empaquetada verificada con el flujo E2E.
 - Base de datos local con migraciones automáticas.
 - Datos iniciales y creación del administrador en el primer inicio.
+- Documentación completa en `README.md`.
