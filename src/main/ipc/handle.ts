@@ -1,4 +1,4 @@
-import { ipcMain } from 'electron'
+import { ipcMain, type IpcMainInvokeEvent } from 'electron'
 import log from 'electron-log/main'
 import { ZodError, type ZodType } from 'zod'
 import { AppError } from '@shared/errors'
@@ -43,12 +43,16 @@ export function registerPublicHandler<TInput = void, TOutput = void>(
 export function registerProtectedHandler<TInput = void, TOutput = void>(
   channel: string,
   schema: ZodType<TInput> | null,
-  handler: (input: TInput, user: AuthUser) => TOutput | Promise<TOutput>,
+  handler: (
+    input: TInput,
+    user: AuthUser,
+    event: IpcMainInvokeEvent
+  ) => TOutput | Promise<TOutput>,
   options: ProtectedOptions = {}
 ): void {
   ipcMain.removeHandler(channel)
 
-  ipcMain.handle(channel, async (_event, payload): Promise<IpcResult<TOutput>> => {
+  ipcMain.handle(channel, async (event, payload): Promise<IpcResult<TOutput>> => {
     try {
       const user = getSessionUser()
 
@@ -65,7 +69,7 @@ export function registerProtectedHandler<TInput = void, TOutput = void>(
       }
 
       const input = schema ? schema.parse(payload) : (undefined as TInput)
-      const data = await handler(input, user)
+      const data = await handler(input, user, event)
       return { ok: true, data }
     } catch (error) {
       logUnexpected(channel, error)

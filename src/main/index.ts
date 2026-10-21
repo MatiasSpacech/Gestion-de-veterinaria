@@ -12,12 +12,13 @@ import {
 import log from 'electron-log/main'
 import { closeDatabase, initDatabase } from './db'
 import { registerIpcHandlers } from './ipc'
+import { registerPetPhotoProtocol, registerPetPhotoScheme } from './photos'
 
 const PRODUCTION_CSP = [
   "default-src 'self'",
   "script-src 'self'",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
+  "img-src 'self' data: blob: vetphoto:",
   "font-src 'self' data:",
   "connect-src 'self'",
   "object-src 'none'",
@@ -25,6 +26,8 @@ const PRODUCTION_CSP = [
   "form-action 'self'",
   "frame-ancestors 'none'"
 ].join('; ')
+
+registerPetPhotoScheme()
 
 app.setName('VetGestión')
 
@@ -138,6 +141,7 @@ if (!hasSingleInstanceLock) {
     log.transports.console.level = app.isPackaged ? false : 'debug'
 
     Menu.setApplicationMenu(null)
+    registerPetPhotoProtocol()
 
     if (app.isPackaged) {
       session.defaultSession.webRequest.onHeadersReceived((details, callback) => {

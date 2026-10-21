@@ -23,12 +23,16 @@ import {
   IconVaccine,
   type TablerIcon
 } from '@tabler/icons-react'
+import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { useNavigate } from 'react-router-dom'
 import { MODULE_LABELS } from '@shared/roles'
+import { api } from '@renderer/lib/api'
+import { formatDueIn } from '@renderer/lib/format'
 import { useAuth } from '@renderer/lib/use-auth'
 
 interface Metric {
+  key: 'sales' | 'appointments' | 'lowStock' | 'vaccines'
   label: string
   icon: TablerIcon
   color: string
@@ -37,34 +41,44 @@ interface Metric {
 
 const METRICS: Metric[] = [
   {
+    key: 'sales',
     label: 'Ventas de hoy',
     icon: IconShoppingCart,
     color: 'vetGreen',
     hint: 'Disponible en la fase de ventas'
   },
   {
+    key: 'appointments',
     label: 'Turnos de hoy',
     icon: IconCalendarPlus,
     color: 'blue',
     hint: 'Disponible en la fase de peluquería'
   },
   {
+    key: 'lowStock',
     label: 'Productos con stock bajo',
     icon: IconAlertTriangle,
     color: 'orange',
     hint: 'Disponible en la fase de inventario'
   },
   {
+    key: 'vaccines',
     label: 'Vacunas próximas',
     icon: IconVaccine,
     color: 'violet',
-    hint: 'Disponible en la fase de historial'
+    hint: 'Próximas dosis y refuerzos'
   }
 ]
 
 export function DashboardPage(): React.JSX.Element {
-  const { user, businessName, permissions } = useAuth()
+  const { user, businessName, permissions, hasPermission } = useAuth()
   const navigate = useNavigate()
+  const vaccinesQuery = useQuery({
+    queryKey: ['upcoming-vaccines'],
+    queryFn: api.pets.upcomingVaccines,
+    enabled: hasPermission('mascotas')
+  })
+  const upcomingVaccines = vaccinesQuery.data ?? []
 
   const greeting = (() => {
     const hour = dayjs().hour()
@@ -122,6 +136,17 @@ export function DashboardPage(): React.JSX.Element {
       <SimpleGrid cols={{ base: 1, sm: 2, xl: 4 }} spacing="md">
         {METRICS.map((metric) => {
           const Icon = metric.icon
+          const isVaccineMetric = metric.key === 'vaccines'
+          const value = isVaccineMetric
+            ? vaccinesQuery.isPending
+              ? '—'
+              : String(upcomingVaccines.length)
+            : '—'
+          const hint = isVaccineMetric
+            ? upcomingVaccines.length > 0
+              ? `${upcomingVaccines.length} para revisar`
+              : 'Sin recordatorios pendientes'
+            : metric.hint
 
           return (
             <Card key={metric.label} padding="lg">
@@ -131,10 +156,10 @@ export function DashboardPage(): React.JSX.Element {
                     {metric.label}
                   </Text>
                   <Text fz={30} fw={800} lh={1.15} mt={8}>
-                    —
+                    {value}
                   </Text>
                   <Text size="xs" c="dimmed" mt={6}>
-                    {metric.hint}
+                    {hint}
                   </Text>
                 </div>
                 <ThemeIcon
@@ -151,6 +176,67 @@ export function DashboardPage(): React.JSX.Element {
           )
         })}
       </SimpleGrid>
+
+      {hasPermission('mascotas') && upcomingVaccines.length > 0 ? (
+        <Card padding="lg">
+          <Group justify="space-between" align="flex-start" mb="md" wrap="wrap">
+            <div>
+              <Title order={4}>Recordatorios de vacunas</Title>
+              <Text size="sm" c="dimmed">
+                Dosis vencidas o próximas de las mascotas activas.
+              </Text>
+            </div>
+            <Button
+              variant="light"
+              size="xs"
+              leftSection={<IconVaccine size={15} />}
+              onClick={() => navigate('/mascotas')}
+            >
+              Ver mascotas
+            </Button>
+          </Group>
+
+          <Stack gap="xs">
+            {upcomingVaccines.slice(0, 5).map((reminder) => (
+              <Group
+                key={`${reminder.petId}-${reminder.title}`}
+                justify="space-between"
+                wrap="nowrap"
+                p="sm"
+                style={{
+                  cursor: 'pointer',
+                  borderRadius: 10,
+                  background: '#f7faf8'
+                }}
+                onClick={() => navigate(`/mascotas/${reminder.petId}`)}
+              >
+                <Group gap="sm" wrap="nowrap" style={{ minWidth: 0 }}>
+                  <ThemeIcon color="violet" variant="light" size={34} radius="md">
+                    <IconVaccine size={17} />
+                  </ThemeIcon>
+                  <div style={{ minWidth: 0 }}>
+                    <Text size="sm" fw={600} truncate>
+                      {reminder.petName} · {reminder.title}
+                    </Text>
+                    <Text size="xs" c="dimmed" truncate>
+                      {reminder.clientName} · Próxima dosis:{' '}
+                      {dayjs(reminder.nextDueDate).format('DD/MM/YYYY')}
+                    </Text>
+                  </div>
+                </Group>
+                <Badge
+                  variant="light"
+                  color={reminder.daysUntil < 0 ? 'red' : reminder.daysUntil <= 30 ? 'orange' : 'vetGreen'}
+                  radius="sm"
+                  style={{ flexShrink: 0 }}
+                >
+                  {formatDueIn(reminder.daysUntil)}
+                </Badge>
+              </Group>
+            ))}
+          </Stack>
+        </Card>
+      ) : null}
 
       <SimpleGrid cols={{ base: 1, lg: 3 }} spacing="md">
         <Card padding="lg" style={{ gridColumn: 'span 2' }}>
@@ -215,12 +301,12 @@ export function DashboardPage(): React.JSX.Element {
         variant="light"
         color="vetGreen"
         icon={<IconInfoCircle size={20} />}
-        title="Base de la aplicación lista"
+        title="Clientes y mascotas disponibles"
       >
         <Text size="sm">
-          Ya están configurados el acceso, los usuarios y la base de datos local. Los
-          módulos de clientes, inventario, ventas y peluquería se incorporan en las
-          próximas fases.
+          Ya podés gestionar clientes, mascotas, historial clínico, evolución de peso
+          y recordatorios de vacunas. Inventario, ventas y peluquería se incorporan
+          en las próximas fases.
         </Text>
       </Alert>
     </Stack>

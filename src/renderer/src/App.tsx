@@ -1,18 +1,20 @@
 import {
   IconBoxSeam,
   IconChartBar,
-  IconPaw,
   IconScissors,
   IconSettings,
   IconShieldLock,
-  IconShoppingCart,
-  IconUsers
+  IconShoppingCart
 } from '@tabler/icons-react'
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom'
 import { AppLayout } from './components/AppLayout'
 import { DashboardPage } from './features/dashboard/DashboardPage'
 import { LoginPage } from './features/auth/LoginPage'
 import { SetupPage } from './features/auth/SetupPage'
+import { ClientDetailPage } from './features/clients/ClientDetailPage'
+import { ClientsPage } from './features/clients/ClientsPage'
+import { PetDetailPage } from './features/pets/PetDetailPage'
+import { PetsPage } from './features/pets/PetsPage'
 import { PlaceholderPage } from './features/placeholder/PlaceholderPage'
 import { useAuth } from './lib/use-auth'
 
@@ -67,28 +69,10 @@ export default function App(): React.JSX.Element {
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
           <Route index element={<DashboardPage />} />
-          <Route
-            path="clientes"
-            element={
-              <PlaceholderPage
-                title="Clientes"
-                description="Acá vas a poder registrar los datos de contacto de cada cliente, consultar sus mascotas y su historial de compras y turnos."
-                phase="Fase 2"
-                icon={IconUsers}
-              />
-            }
-          />
-          <Route
-            path="mascotas"
-            element={
-              <PlaceholderPage
-                title="Mascotas"
-                description="Fichas completas con foto, datos del animal, historial clínico, vacunas, peso y turnos."
-                phase="Fase 2"
-                icon={IconPaw}
-              />
-            }
-          />
+          <Route path="clientes" element={<ClientsPage />} />
+          <Route path="clientes/:id" element={<ClientDetailPage />} />
+          <Route path="mascotas" element={<PetsPage />} />
+          <Route path="mascotas/:id" element={<PetDetailPage />} />
           <Route
             path="inventario"
             element={

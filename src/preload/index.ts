@@ -15,6 +15,26 @@ const api: VetApi = {
     update: (input) => ipcRenderer.invoke(IPC.users.update, input),
     resetPassword: (input) => ipcRenderer.invoke(IPC.users.resetPassword, input)
   },
+  clients: {
+    list: (input) => ipcRenderer.invoke(IPC.clients.list, input),
+    get: (input) => ipcRenderer.invoke(IPC.clients.get, input),
+    create: (input) => ipcRenderer.invoke(IPC.clients.create, input),
+    update: (input) => ipcRenderer.invoke(IPC.clients.update, input),
+    setActive: (input) => ipcRenderer.invoke(IPC.clients.setActive, input)
+  },
+  pets: {
+    list: (input) => ipcRenderer.invoke(IPC.pets.list, input),
+    get: (input) => ipcRenderer.invoke(IPC.pets.get, input),
+    create: (input) => ipcRenderer.invoke(IPC.pets.create, input),
+    update: (input) => ipcRenderer.invoke(IPC.pets.update, input),
+    setActive: (input) => ipcRenderer.invoke(IPC.pets.setActive, input),
+    pickPhoto: () => ipcRenderer.invoke(IPC.pets.pickPhoto),
+    medicalRecords: (input) => ipcRenderer.invoke(IPC.pets.medicalRecords, input),
+    createMedicalRecord: (input) =>
+      ipcRenderer.invoke(IPC.pets.createMedicalRecord, input),
+    weightHistory: (input) => ipcRenderer.invoke(IPC.pets.weightHistory, input),
+    upcomingVaccines: () => ipcRenderer.invoke(IPC.pets.upcomingVaccines)
+  },
   app: {
     info: () => ipcRenderer.invoke(IPC.app.info)
   }

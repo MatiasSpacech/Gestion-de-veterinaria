@@ -12,6 +12,14 @@ const userData = fs.mkdtempSync(path.join(os.tmpdir(), 'vetgestion-e2e-'))
 const env = { ...process.env, VETGESTION_USER_DATA: userData }
 delete env.ELECTRON_RUN_AS_NODE
 
+const nextVaccine = new Date()
+nextVaccine.setDate(nextVaccine.getDate() + 20)
+const nextVaccineDate = [
+  nextVaccine.getFullYear(),
+  String(nextVaccine.getMonth() + 1).padStart(2, '0'),
+  String(nextVaccine.getDate()).padStart(2, '0')
+].join('-')
+
 const app = await electron.launch({
   args: [root],
   cwd: root,
@@ -23,6 +31,12 @@ let passed = false
 
 try {
   const win = await app.firstWindow()
+  win.on('pageerror', (error) => console.error('Renderer error:', error))
+  win.on('console', (message) => {
+    if (message.type() === 'error') {
+      console.error('Renderer console:', message.text())
+    }
+  })
   await win.waitForLoadState('domcontentloaded')
 
   const metrics = await win.evaluate(() => ({
@@ -77,6 +91,50 @@ try {
   await win.getByRole('button', { name: 'Nuevo cliente' }).click()
   await win.getByRole('heading', { name: 'Clientes', level: 2 }).waitFor()
 
+  await win.getByRole('button', { name: 'Nuevo cliente' }).first().click()
+  await win.getByLabel('Nombre completo').waitFor()
+  await win.getByLabel('Nombre completo').fill('Juan Pérez')
+  await win.getByLabel('Teléfono').fill('11 5555-1234')
+  await win.getByLabel('Correo electrónico').fill('juan@example.com')
+  await win.getByRole('button', { name: 'Crear cliente' }).click()
+  await win.getByText('Cliente creado').waitFor()
+  await win.getByText('Juan Pérez', { exact: true }).waitFor()
+
+  await win.getByRole('row', { name: /Juan Pérez/ }).click()
+  await win.getByRole('heading', { name: 'Juan Pérez', level: 2 }).waitFor()
+
+  await win.getByRole('button', { name: 'Agregar mascota' }).first().click()
+  await win.getByText('Nueva mascota', { exact: true }).waitFor()
+  await win.getByLabel('Nombre', { exact: true }).fill('Firulais')
+  await win.getByLabel('Peso actual (kg)').fill('12.5')
+  await win.getByRole('button', { name: 'Registrar mascota' }).click()
+  await win.getByText('Mascota registrada', { exact: true }).waitFor()
+  await win.getByText('Firulais', { exact: true }).click()
+  await win.getByRole('heading', { name: 'Firulais', level: 2 }).waitFor()
+
+  await win.getByRole('button', { name: 'Nuevo registro' }).click()
+  await win.getByText('Nuevo registro clínico', { exact: true }).waitFor()
+  await win.getByRole('combobox', { name: 'Tipo de registro' }).click()
+  await win.getByRole('option', { name: 'Vacuna', exact: true }).click()
+  await win.getByLabel('Título', { exact: true }).fill('Antirrábica')
+  await win.getByLabel(/Próxima dosis/).fill(nextVaccineDate)
+  await win.getByRole('button', { name: 'Guardar registro' }).click()
+  await win.getByText('Registro guardado').waitFor()
+  await win.getByText('Antirrábica', { exact: true }).first().waitFor()
+
+  await win.getByRole('tab', { name: 'Vacunas' }).click()
+  await win
+    .getByRole('tabpanel', { name: 'Vacunas' })
+    .getByText('Antirrábica', { exact: true })
+    .waitFor()
+
+  await win
+    .locator('.mantine-NavLink-root')
+    .filter({ hasText: /^Panel$/ })
+    .click()
+  await win.getByText('Recordatorios de vacunas', { exact: true }).waitFor()
+  await win.getByText(/Firulais · Antirrábica/).waitFor()
+
   await win.getByRole('button', { name: /Ana Test/ }).click()
   await win.getByRole('menuitem', { name: 'Cambiar contraseña' }).click()
   await win.getByLabel('Contraseña actual').fill('clave12345')
@@ -101,7 +159,9 @@ try {
     .waitFor({ timeout: 20_000 })
 
   passed = true
-  console.log('E2E smoke OK: setup, dashboard, navegación, cambio de contraseña y login.')
+  console.log(
+    'E2E smoke OK: setup, dashboard, clientes, mascotas, vacuna, recordatorios, contraseña y login.'
+  )
 } finally {
   await app.close().catch(() => {})
 
