@@ -246,6 +246,107 @@ try {
     .getByText('10 unidad', { exact: true })
     .waitFor()
 
+  await win
+    .locator('.mantine-NavLink-root')
+    .filter({ hasText: /^Agenda de turnos$/ })
+    .click()
+  await win.getByRole('heading', { name: 'Peluquería', level: 2 }).waitFor()
+  await win.getByText('Configuración pendiente').waitFor()
+
+  await win.getByRole('tab', { name: 'Peluqueros' }).click()
+  await win.getByRole('button', { name: 'Nuevo peluquero' }).click()
+  await win.getByLabel('Nombre', { exact: true }).fill('Carla E2E')
+  await win.getByLabel('Teléfono').fill('11 4444-5555')
+  await win.getByRole('button', { name: 'Crear peluquero' }).click()
+  await win.getByText('Peluquero creado').waitFor()
+  await win
+    .getByRole('tabpanel', { name: 'Peluqueros' })
+    .getByText('Carla E2E', { exact: true })
+    .waitFor()
+
+  await win.getByRole('tab', { name: 'Servicios' }).click()
+  await win.getByRole('button', { name: 'Nuevo servicio' }).click()
+  await win.getByLabel('Nombre', { exact: true }).fill('Baño E2E')
+  await win.getByLabel('Precio').fill('5000')
+  await win.getByLabel('Duración (minutos)').fill('45')
+  await win.getByRole('button', { name: 'Crear servicio' }).click()
+  await win.getByText('Servicio creado').waitFor()
+  await win
+    .getByRole('tabpanel', { name: 'Servicios' })
+    .getByText('Baño E2E', { exact: true })
+    .waitFor()
+
+  await win.getByRole('tab', { name: 'Agenda' }).click()
+  await win.getByRole('button', { name: 'Nuevo turno' }).click()
+  const appointmentDialog = win
+    .getByRole('dialog')
+    .filter({ hasText: 'Nuevo turno' })
+  await appointmentDialog.getByLabel('Cliente').click()
+  await win.getByRole('option', { name: /Juan Pérez/ }).click()
+  await appointmentDialog.getByLabel('Mascota').click()
+  await win.getByRole('option', { name: /Firulais/ }).click()
+  await appointmentDialog.getByLabel('Peluquero').click()
+  await win.getByRole('option', { name: 'Carla E2E' }).click()
+  await appointmentDialog.getByLabel('Servicios').click()
+  await win.getByRole('option', { name: /Baño E2E/ }).click()
+  await win.keyboard.press('Escape')
+  await appointmentDialog.getByRole('button', { name: 'Agendar turno' }).click()
+  await win.getByText('Turno agendado').waitFor()
+
+  const appointmentCard = win
+    .getByRole('button', { name: /Firulais/ })
+    .first()
+  await appointmentCard.waitFor()
+  await appointmentCard.click()
+  const detailDialog = win
+    .getByRole('dialog')
+    .filter({ hasText: 'Detalle del turno' })
+  await detailDialog.getByText('Baño E2E').waitFor()
+  await detailDialog.getByRole('button', { name: 'Confirmar' }).click()
+  await win.getByText('Estado: Confirmado').waitFor()
+  await detailDialog.getByRole('button', { name: 'Iniciar' }).click()
+  await win.getByText('Estado: En proceso').waitFor()
+  await detailDialog.getByRole('button', { name: 'Completar' }).click()
+  await win.getByText('Estado: Completado').waitFor()
+  await detailDialog.getByRole('button', { name: 'Cobrar turno' }).click()
+  const chargeDialog = win
+    .getByRole('dialog')
+    .filter({ hasText: 'Cobrar turno' })
+  await chargeDialog.getByLabel('Tarjeta').click()
+  await chargeDialog.getByRole('button', { name: 'Confirmar cobro' }).click()
+  await win.getByText('Turno cobrado').waitFor()
+
+  await appointmentCard.click()
+  const chargedDialog = win
+    .getByRole('dialog')
+    .filter({ hasText: 'Detalle del turno' })
+  await chargedDialog.getByText('Cobrada', { exact: true }).waitFor()
+  await win.keyboard.press('Escape')
+  await chargedDialog.waitFor({ state: 'hidden' })
+
+  await win.getByText('Semana', { exact: true }).click()
+  await win.getByText('Sin turnos', { exact: true }).first().waitFor()
+  await win.getByText('Día', { exact: true }).click()
+
+  await win
+    .locator('.mantine-NavLink-root')
+    .filter({ hasText: /^Ventas$/ })
+    .click()
+  await win.getByRole('tab', { name: 'Historial' }).click()
+  const serviceSaleRow = win.getByRole('row', { name: /V-000002/ })
+  await serviceSaleRow.waitFor()
+  await serviceSaleRow.getByText('Completada', { exact: true }).waitFor()
+
+  await win
+    .locator('.mantine-NavLink-root')
+    .filter({ hasText: /^Panel$/ })
+    .click()
+  await win
+    .locator('.mantine-Card-root')
+    .filter({ hasText: 'Turnos de hoy' })
+    .getByText('1', { exact: true })
+    .waitFor()
+
   await win.getByRole('button', { name: /Ana Test/ }).click()
   await win.getByRole('menuitem', { name: 'Cambiar contraseña' }).click()
   await win.getByLabel('Contraseña actual').fill('clave12345')
@@ -271,7 +372,7 @@ try {
 
   passed = true
   console.log(
-    'E2E smoke OK: setup, dashboard, clientes, mascotas, vacuna, recordatorios, inventario, venta, anulación, contraseña y login.'
+    'E2E smoke OK: setup, dashboard, clientes, mascotas, vacuna, recordatorios, inventario, venta, anulación, peluquería, cobro, contraseña y login.'
   )
 } finally {
   await app.close().catch(() => {})

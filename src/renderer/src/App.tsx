@@ -1,6 +1,5 @@
 import {
   IconChartBar,
-  IconScissors,
   IconSettings,
   IconShieldLock
 } from '@tabler/icons-react'
@@ -11,6 +10,7 @@ import { LoginPage } from './features/auth/LoginPage'
 import { SetupPage } from './features/auth/SetupPage'
 import { ClientDetailPage } from './features/clients/ClientDetailPage'
 import { ClientsPage } from './features/clients/ClientsPage'
+import { GroomingPage } from './features/grooming/GroomingPage'
 import { InventoryPage } from './features/inventory/InventoryPage'
 import { PetDetailPage } from './features/pets/PetDetailPage'
 import { PetsPage } from './features/pets/PetsPage'
@@ -75,17 +75,7 @@ export default function App(): React.JSX.Element {
           <Route path="mascotas/:id" element={<PetDetailPage />} />
           <Route path="inventario" element={<InventoryPage />} />
           <Route path="ventas" element={<SalesPage />} />
-          <Route
-            path="peluqueria"
-            element={
-              <PlaceholderPage
-                title="Agenda de turnos"
-                description="Calendario por peluquero, servicios, estados del turno, recordatorios por WhatsApp y cobro."
-                phase="Fase 5"
-                icon={IconScissors}
-              />
-            }
-          />
+          <Route path="peluqueria" element={<GroomingPage />} />
           <Route
             path="reportes"
             element={

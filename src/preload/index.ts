@@ -65,6 +65,31 @@ const api: VetApi = {
     cancel: (input) => ipcRenderer.invoke(IPC.sales.cancel, input),
     summary: () => ipcRenderer.invoke(IPC.sales.summary)
   },
+  grooming: {
+    listServices: (input) => ipcRenderer.invoke(IPC.grooming.listServices, input),
+    createService: (input) => ipcRenderer.invoke(IPC.grooming.createService, input),
+    updateService: (input) => ipcRenderer.invoke(IPC.grooming.updateService, input),
+    setServiceActive: (input) =>
+      ipcRenderer.invoke(IPC.grooming.setServiceActive, input),
+    listGroomers: (input) => ipcRenderer.invoke(IPC.grooming.listGroomers, input),
+    createGroomer: (input) => ipcRenderer.invoke(IPC.grooming.createGroomer, input),
+    updateGroomer: (input) => ipcRenderer.invoke(IPC.grooming.updateGroomer, input),
+    setGroomerActive: (input) =>
+      ipcRenderer.invoke(IPC.grooming.setGroomerActive, input),
+    listAppointments: (input) =>
+      ipcRenderer.invoke(IPC.grooming.listAppointments, input),
+    getAppointment: (input) =>
+      ipcRenderer.invoke(IPC.grooming.getAppointment, input),
+    createAppointment: (input) =>
+      ipcRenderer.invoke(IPC.grooming.createAppointment, input),
+    updateAppointment: (input) =>
+      ipcRenderer.invoke(IPC.grooming.updateAppointment, input),
+    setAppointmentStatus: (input) =>
+      ipcRenderer.invoke(IPC.grooming.setAppointmentStatus, input),
+    chargeAppointment: (input) =>
+      ipcRenderer.invoke(IPC.grooming.chargeAppointment, input),
+    summary: () => ipcRenderer.invoke(IPC.grooming.summary)
+  },
   app: {
     info: () => ipcRenderer.invoke(IPC.app.info)
   }

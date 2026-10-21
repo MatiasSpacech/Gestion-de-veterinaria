@@ -482,3 +482,136 @@ export const cancelSaleSchema = z.object({
 })
 
 export type CancelSaleInput = z.infer<typeof cancelSaleSchema>
+
+export const serviceCategorySchema = z.enum(['peluqueria', 'consulta', 'otro'])
+
+const serviceFieldsSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(2, 'El nombre debe tener al menos 2 caracteres')
+    .max(80, 'El nombre no puede superar los 80 caracteres'),
+  category: serviceCategorySchema,
+  priceCents: moneyCentsSchema,
+  durationMinutes: z
+    .number()
+    .int('La duración debe expresarse en minutos enteros')
+    .min(5, 'La duración mínima es de 5 minutos')
+    .max(480, 'La duración no puede superar las 8 horas')
+})
+
+export const createServiceSchema = serviceFieldsSchema
+
+export type CreateServiceInput = z.infer<typeof createServiceSchema>
+
+export const updateServiceSchema = serviceFieldsSchema.extend({
+  id: idSchema
+})
+
+export type UpdateServiceInput = z.infer<typeof updateServiceSchema>
+
+export const listServicesSchema = z.object({
+  includeInactive: z.boolean().optional().default(false)
+})
+
+export type ListServicesInput = z.infer<typeof listServicesSchema>
+
+const groomerColorSchema = z
+  .string()
+  .regex(/^#[0-9a-fA-F]{6}$/, 'Elegí un color válido')
+
+const groomerFieldsSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(2, 'El nombre debe tener al menos 2 caracteres')
+    .max(80, 'El nombre no puede superar los 80 caracteres'),
+  phone: optionalText(40),
+  color: groomerColorSchema
+})
+
+export const createGroomerSchema = groomerFieldsSchema
+
+export type CreateGroomerInput = z.infer<typeof createGroomerSchema>
+
+export const updateGroomerSchema = groomerFieldsSchema.extend({
+  id: idSchema
+})
+
+export type UpdateGroomerInput = z.infer<typeof updateGroomerSchema>
+
+export const listGroomersSchema = z.object({
+  includeInactive: z.boolean().optional().default(false)
+})
+
+export type ListGroomersInput = z.infer<typeof listGroomersSchema>
+
+export const appointmentStatusSchema = z.enum([
+  'pendiente',
+  'confirmado',
+  'en_proceso',
+  'completado',
+  'cancelado',
+  'no_asistio'
+])
+
+const appointmentFieldsSchema = z.object({
+  clientId: idSchema,
+  petId: idSchema,
+  groomerId: idSchema,
+  date: isoDateSchema,
+  startMinutes: z
+    .number()
+    .int('La hora debe expresarse en minutos enteros')
+    .min(0, 'La hora de inicio no es válida')
+    .max(1439, 'La hora de inicio no es válida'),
+  serviceIds: z
+    .array(idSchema)
+    .min(1, 'Agregá al menos un servicio')
+    .max(10, 'El turno no puede tener más de 10 servicios'),
+  notes: optionalText(500)
+})
+
+export const createAppointmentSchema = appointmentFieldsSchema
+
+export type CreateAppointmentInput = z.infer<typeof createAppointmentSchema>
+
+export const updateAppointmentSchema = appointmentFieldsSchema.extend({
+  id: idSchema
+})
+
+export type UpdateAppointmentInput = z.infer<typeof updateAppointmentSchema>
+
+export const listAppointmentsSchema = z.object({
+  dateFrom: isoDateSchema,
+  dateTo: isoDateSchema,
+  groomerId: optionalId,
+  status: z
+    .enum([
+      'all',
+      'pendiente',
+      'confirmado',
+      'en_proceso',
+      'completado',
+      'cancelado',
+      'no_asistio'
+    ])
+    .optional()
+    .default('all')
+})
+
+export type ListAppointmentsInput = z.infer<typeof listAppointmentsSchema>
+
+export const setAppointmentStatusSchema = z.object({
+  id: idSchema,
+  status: appointmentStatusSchema
+})
+
+export type SetAppointmentStatusInput = z.infer<typeof setAppointmentStatusSchema>
+
+export const chargeAppointmentSchema = z.object({
+  id: idSchema,
+  paymentMethod: paymentMethodSchema
+})
+
+export type ChargeAppointmentInput = z.infer<typeof chargeAppointmentSchema>

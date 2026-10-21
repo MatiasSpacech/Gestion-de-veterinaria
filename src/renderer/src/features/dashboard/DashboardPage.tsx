@@ -52,7 +52,7 @@ const METRICS: Metric[] = [
     label: 'Turnos de hoy',
     icon: IconCalendarPlus,
     color: 'blue',
-    hint: 'Disponible en la fase de peluquería'
+    hint: 'Turnos agendados para hoy'
   },
   {
     key: 'lowStock',
@@ -91,6 +91,12 @@ export function DashboardPage(): React.JSX.Element {
   })
   const inventorySummary = inventoryQuery.data
   const salesSummary = salesQuery.data
+  const groomingQuery = useQuery({
+    queryKey: ['grooming', 'summary'],
+    queryFn: api.grooming.summary,
+    enabled: hasPermission('peluqueria')
+  })
+  const groomingSummary = groomingQuery.data
 
   const greeting = (() => {
     const hour = dayjs().hour()
@@ -151,6 +157,7 @@ export function DashboardPage(): React.JSX.Element {
           const isVaccineMetric = metric.key === 'vaccines'
           const isInventoryMetric = metric.key === 'lowStock'
           const isSalesMetric = metric.key === 'sales'
+          const isAppointmentMetric = metric.key === 'appointments'
           let value = '—'
           let hint = metric.hint
 
@@ -159,6 +166,15 @@ export function DashboardPage(): React.JSX.Element {
             hint = salesSummary
               ? `${formatCurrency(salesSummary.todayTotalCents)} facturados`
               : 'Operaciones completadas'
+          }
+
+          if (isAppointmentMetric) {
+            value = groomingQuery.isPending
+              ? '—'
+              : String(groomingSummary?.todayCount ?? 0)
+            hint = groomingSummary
+              ? `${groomingSummary.activeCount} por atender`
+              : metric.hint
           }
 
           if (isVaccineMetric) {
@@ -331,12 +347,13 @@ export function DashboardPage(): React.JSX.Element {
         variant="light"
         color="vetGreen"
         icon={<IconInfoCircle size={20} />}
-        title="Clientes, mascotas, inventario y ventas disponibles"
+        title="Clientes, mascotas, inventario, ventas y peluquería disponibles"
       >
         <Text size="sm">
           Ya podés gestionar clientes, mascotas, historial clínico, inventario con
-          lotes y vencimientos, y registrar ventas con control de stock y anulación.
-          Peluquería y reportes se incorporan en las próximas fases.
+          lotes y vencimientos, registrar ventas con control de stock y anulación,
+          y organizar la agenda de peluquería con cobro de turnos. Los reportes se
+          incorporan en la próxima fase.
         </Text>
       </Alert>
     </Stack>

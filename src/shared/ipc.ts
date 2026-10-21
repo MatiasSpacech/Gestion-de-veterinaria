@@ -1,14 +1,21 @@
 import type {
   CancelSaleInput,
   ChangePasswordInput,
+  ChargeAppointmentInput,
+  CreateAppointmentInput,
   CreateCategoryInput,
   CreateClientInput,
+  CreateGroomerInput,
   CreateMedicalRecordInput,
   CreatePetInput,
   CreateProductInput,
   CreateSaleInput,
+  CreateServiceInput,
   CreateUserInput,
   GetByIdInput,
+  ListAppointmentsInput,
+  ListGroomersInput,
+  ListServicesInput,
   ListCategoriesInput,
   ListClientsInput,
   ListMedicalRecordsInput,
@@ -20,22 +27,30 @@ import type {
   LoginInput,
   ResetPasswordInput,
   SetActiveInput,
+  SetAppointmentStatusInput,
   SetupAdminInput,
   StockAdjustmentInput,
   StockEntryInput,
+  UpdateAppointmentInput,
   UpdateCategoryInput,
   UpdateClientInput,
+  UpdateGroomerInput,
   UpdatePetInput,
   UpdateProductInput,
+  UpdateServiceInput,
   UpdateUserInput,
   WeightHistoryInput
 } from './schemas'
 import type {
   AppInfo,
+  AppointmentRecord,
+  AppointmentSummary,
   AuthStatus,
+  ChargeAppointmentResult,
   ClientDetail,
   ClientRecord,
   ExpiringBatch,
+  GroomerRecord,
   InventorySummary,
   MedicalRecord,
   PetRecord,
@@ -45,6 +60,7 @@ import type {
   SaleDetail,
   SaleListRecord,
   SalesSummary,
+  ServiceRecord,
   StockMovement,
   UpcomingVaccine,
   UserRecord,
@@ -108,6 +124,23 @@ export const IPC = {
     get: 'sales:get',
     cancel: 'sales:cancel',
     summary: 'sales:summary'
+  },
+  grooming: {
+    listServices: 'grooming:list-services',
+    createService: 'grooming:create-service',
+    updateService: 'grooming:update-service',
+    setServiceActive: 'grooming:set-service-active',
+    listGroomers: 'grooming:list-groomers',
+    createGroomer: 'grooming:create-groomer',
+    updateGroomer: 'grooming:update-groomer',
+    setGroomerActive: 'grooming:set-groomer-active',
+    listAppointments: 'grooming:list-appointments',
+    getAppointment: 'grooming:get-appointment',
+    createAppointment: 'grooming:create-appointment',
+    updateAppointment: 'grooming:update-appointment',
+    setAppointmentStatus: 'grooming:set-appointment-status',
+    chargeAppointment: 'grooming:charge-appointment',
+    summary: 'grooming:summary'
   },
   app: {
     info: 'app:info'
@@ -199,6 +232,47 @@ export interface VetApi {
     get: (input: GetByIdInput) => Promise<IpcResult<SaleDetail>>
     cancel: (input: CancelSaleInput) => Promise<IpcResult<SaleDetail>>
     summary: () => Promise<IpcResult<SalesSummary>>
+  }
+  grooming: {
+    listServices: (input: ListServicesInput) => Promise<IpcResult<ServiceRecord[]>>
+    createService: (
+      input: CreateServiceInput
+    ) => Promise<IpcResult<ServiceRecord>>
+    updateService: (
+      input: UpdateServiceInput
+    ) => Promise<IpcResult<ServiceRecord>>
+    setServiceActive: (
+      input: SetActiveInput
+    ) => Promise<IpcResult<ServiceRecord>>
+    listGroomers: (input: ListGroomersInput) => Promise<IpcResult<GroomerRecord[]>>
+    createGroomer: (
+      input: CreateGroomerInput
+    ) => Promise<IpcResult<GroomerRecord>>
+    updateGroomer: (
+      input: UpdateGroomerInput
+    ) => Promise<IpcResult<GroomerRecord>>
+    setGroomerActive: (
+      input: SetActiveInput
+    ) => Promise<IpcResult<GroomerRecord>>
+    listAppointments: (
+      input: ListAppointmentsInput
+    ) => Promise<IpcResult<AppointmentRecord[]>>
+    getAppointment: (
+      input: GetByIdInput
+    ) => Promise<IpcResult<AppointmentRecord>>
+    createAppointment: (
+      input: CreateAppointmentInput
+    ) => Promise<IpcResult<AppointmentRecord>>
+    updateAppointment: (
+      input: UpdateAppointmentInput
+    ) => Promise<IpcResult<AppointmentRecord>>
+    setAppointmentStatus: (
+      input: SetAppointmentStatusInput
+    ) => Promise<IpcResult<AppointmentRecord>>
+    chargeAppointment: (
+      input: ChargeAppointmentInput
+    ) => Promise<IpcResult<ChargeAppointmentResult>>
+    summary: () => Promise<IpcResult<AppointmentSummary>>
   }
   app: {
     info: () => Promise<IpcResult<AppInfo>>

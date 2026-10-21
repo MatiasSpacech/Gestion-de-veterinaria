@@ -268,3 +268,75 @@ export interface SalesSummary {
   todayAverageCents: number
   monthTotalCents: number
 }
+
+export type ServiceCategory = 'peluqueria' | 'consulta' | 'otro'
+
+export interface ServiceRecord {
+  id: number
+  name: string
+  category: ServiceCategory
+  priceCents: number
+  durationMinutes: number
+  active: boolean
+  createdAt: string
+}
+
+export interface GroomerRecord {
+  id: number
+  name: string
+  phone: string | null
+  color: string
+  active: boolean
+  createdAt: string
+}
+
+export type AppointmentStatus =
+  | 'pendiente'
+  | 'confirmado'
+  | 'en_proceso'
+  | 'completado'
+  | 'cancelado'
+  | 'no_asistio'
+
+export interface AppointmentServiceRecord {
+  id: number
+  serviceId: number | null
+  name: string
+  priceCents: number
+  durationMinutes: number
+}
+
+export interface AppointmentRecord {
+  id: number
+  clientId: number
+  clientName: string
+  clientPhone: string | null
+  petId: number
+  petName: string
+  groomerId: number
+  groomerName: string
+  groomerColor: string
+  date: string
+  startMinutes: number
+  endMinutes: number
+  durationMinutes: number
+  totalCents: number
+  status: AppointmentStatus
+  notes: string | null
+  saleId: number | null
+  saleNumber: string | null
+  saleStatus: SaleStatus | null
+  services: AppointmentServiceRecord[]
+  createdAt: string
+  updatedAt: string
+}
+
+export interface AppointmentSummary {
+  todayCount: number
+  activeCount: number
+}
+
+export interface ChargeAppointmentResult {
+  appointment: AppointmentRecord
+  sale: SaleDetail
+}

@@ -1,6 +1,7 @@
 import { registerAppHandlers } from './app'
 import { registerAuthHandlers } from './auth'
 import { registerClientHandlers } from './clients'
+import { registerGroomingHandlers } from './grooming'
 import { registerInventoryHandlers } from './inventory'
 import { registerPetHandlers } from './pets'
 import { registerSalesHandlers } from './sales'
@@ -13,5 +14,6 @@ export function registerIpcHandlers(): void {
   registerPetHandlers()
   registerInventoryHandlers()
   registerSalesHandlers()
+  registerGroomingHandlers()
   registerAppHandlers()
 }

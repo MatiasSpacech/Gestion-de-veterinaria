@@ -127,6 +127,51 @@ export const api = {
       unwrap(window.api.sales.cancel(input)),
     summary: () => unwrap(window.api.sales.summary())
   },
+  grooming: {
+    listServices: (
+      input: Parameters<typeof window.api.grooming.listServices>[0]
+    ) => unwrap(window.api.grooming.listServices(input)),
+    createService: (
+      input: Parameters<typeof window.api.grooming.createService>[0]
+    ) => unwrap(window.api.grooming.createService(input)),
+    updateService: (
+      input: Parameters<typeof window.api.grooming.updateService>[0]
+    ) => unwrap(window.api.grooming.updateService(input)),
+    setServiceActive: (
+      input: Parameters<typeof window.api.grooming.setServiceActive>[0]
+    ) => unwrap(window.api.grooming.setServiceActive(input)),
+    listGroomers: (
+      input: Parameters<typeof window.api.grooming.listGroomers>[0]
+    ) => unwrap(window.api.grooming.listGroomers(input)),
+    createGroomer: (
+      input: Parameters<typeof window.api.grooming.createGroomer>[0]
+    ) => unwrap(window.api.grooming.createGroomer(input)),
+    updateGroomer: (
+      input: Parameters<typeof window.api.grooming.updateGroomer>[0]
+    ) => unwrap(window.api.grooming.updateGroomer(input)),
+    setGroomerActive: (
+      input: Parameters<typeof window.api.grooming.setGroomerActive>[0]
+    ) => unwrap(window.api.grooming.setGroomerActive(input)),
+    listAppointments: (
+      input: Parameters<typeof window.api.grooming.listAppointments>[0]
+    ) => unwrap(window.api.grooming.listAppointments(input)),
+    getAppointment: (
+      input: Parameters<typeof window.api.grooming.getAppointment>[0]
+    ) => unwrap(window.api.grooming.getAppointment(input)),
+    createAppointment: (
+      input: Parameters<typeof window.api.grooming.createAppointment>[0]
+    ) => unwrap(window.api.grooming.createAppointment(input)),
+    updateAppointment: (
+      input: Parameters<typeof window.api.grooming.updateAppointment>[0]
+    ) => unwrap(window.api.grooming.updateAppointment(input)),
+    setAppointmentStatus: (
+      input: Parameters<typeof window.api.grooming.setAppointmentStatus>[0]
+    ) => unwrap(window.api.grooming.setAppointmentStatus(input)),
+    chargeAppointment: (
+      input: Parameters<typeof window.api.grooming.chargeAppointment>[0]
+    ) => unwrap(window.api.grooming.chargeAppointment(input)),
+    summary: () => unwrap(window.api.grooming.summary())
+  },
   app: {
     info: () => unwrap(window.api.app.info())
   }

@@ -403,6 +403,86 @@ export function createSale(
   return getSaleDetail(db, saleId)
 }
 
+export interface ServiceSaleInput {
+  clientId: number
+  petId: number
+  paymentMethod: PaymentMethod
+  notes: string | null
+  items: Array<{
+    serviceId: number
+    name: string
+    priceCents: number
+  }>
+}
+
+export function createServiceSale(
+  db: Database.Database,
+  input: ServiceSaleInput,
+  userId: number
+): SaleDetail {
+  if (input.items.length === 0) {
+    throw new AppError('CONFLICT', 'El turno no tiene servicios para cobrar')
+  }
+
+  const { clientId, petId } = resolveClientAndPet(db, input.clientId, input.petId)
+  const subtotalCents = input.items.reduce(
+    (total, item) => total + item.priceCents,
+    0
+  )
+  const now = new Date().toISOString()
+  let saleId = 0
+  let saleNumber = ''
+
+  const create = db.transaction(() => {
+    const result = db
+      .prepare(
+        `INSERT INTO sales
+          (number, client_id, pet_id, user_id, subtotal_cents, discount_cents,
+           total_cents, payment_method, status, notes, created_at)
+         VALUES (?, ?, ?, ?, ?, 0, ?, ?, 'completada', ?, ?)`
+      )
+      .run(
+        `PEND-${randomUUID()}`,
+        clientId,
+        petId,
+        userId,
+        subtotalCents,
+        subtotalCents,
+        input.paymentMethod,
+        input.notes,
+        now
+      )
+
+    saleId = Number(result.lastInsertRowid)
+    saleNumber = `V-${String(saleId).padStart(6, '0')}`
+    db.prepare('UPDATE sales SET number = ? WHERE id = ?').run(saleNumber, saleId)
+
+    for (const item of input.items) {
+      db.prepare(
+        `INSERT INTO sale_items
+          (sale_id, product_id, service_id, description, quantity,
+           unit_price_cents, discount_cents, line_total_cents)
+         VALUES (?, NULL, ?, ?, 1, ?, 0, ?)`
+      ).run(
+        saleId,
+        item.serviceId,
+        item.name,
+        item.priceCents,
+        item.priceCents
+      )
+    }
+
+    db.prepare(
+      `INSERT INTO sale_payments (sale_id, method, amount_cents, created_at)
+       VALUES (?, ?, ?, ?)`
+    ).run(saleId, input.paymentMethod, subtotalCents, now)
+  })
+
+  create()
+
+  return getSaleDetail(db, saleId)
+}
+
 export function listSales(
   db: Database.Database,
   input: ListSalesInput

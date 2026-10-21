@@ -186,47 +186,47 @@ Detalles:
 
 ### Fase 1 — Base
 
-- Scaffold del proyecto.
-- Configuración de electron-vite, TypeScript, ESLint y Vitest.
-- Tema y estilos.
-- SQLite, migraciones y datos iniciales.
-- Autenticación, primer administrador, roles y permisos.
-- IPC seguro.
-- Login, primer inicio, layout y navegación.
-- Panel inicial.
+- [x] Scaffold del proyecto.
+- [x] Configuración de electron-vite, TypeScript, ESLint y Vitest.
+- [x] Tema y estilos.
+- [x] SQLite, migraciones y datos iniciales.
+- [x] Autenticación, primer administrador, roles y permisos.
+- [x] IPC seguro.
+- [x] Login, primer inicio, layout y navegación.
+- [x] Panel inicial.
 
 ### Fase 2 — Clientes y mascotas
 
-- CRUD de clientes.
-- CRUD de mascotas con foto.
-- Búsqueda y desactivación.
-- Historial clínico.
-- Evolución de peso.
-- Recordatorios de vacunas.
+- [x] CRUD de clientes.
+- [x] CRUD de mascotas con foto.
+- [x] Búsqueda y desactivación.
+- [x] Historial clínico.
+- [x] Evolución de peso.
+- [x] Recordatorios de vacunas.
 
 ### Fase 3 — Inventario
 
-- Categorías y productos.
-- Lotes y vencimientos.
-- Entradas, ajustes y movimientos.
-- Alertas de stock bajo y vencimiento.
-- Exportación de inventario.
+- [x] Categorías y productos.
+- [x] Lotes y vencimientos.
+- [x] Entradas, ajustes y movimientos.
+- [x] Alertas de stock bajo y vencimiento.
+- [x] Exportación de inventario.
 
 ### Fase 4 — Ventas
 
-- POS.
-- Transacciones de stock.
-- Historial de ventas.
-- Anulación y reposición.
-- Métricas del panel.
+- [x] POS.
+- [x] Transacciones de stock.
+- [x] Historial de ventas.
+- [x] Anulación y reposición.
+- [x] Métricas del panel.
 
 ### Fase 5 — Peluquería
 
-- Servicios y peluqueros.
-- Agenda diaria y semanal.
-- Turnos, estados y solapamientos.
-- WhatsApp.
-- Cobro vinculado a venta.
+- [x] Servicios y peluqueros.
+- [x] Agenda diaria y semanal.
+- [x] Turnos, estados y solapamientos.
+- [x] WhatsApp.
+- [x] Cobro vinculado a venta.
 
 ### Fase 6 — Reportes y administración
 
@@ -257,7 +257,7 @@ Detalles:
   - Migraciones.
   - Restauración de backups.
 - End-to-end:
-  - Playwright: primer inicio, panel, clientes, mascotas, vacuna con recordatorio, inventario con categoría, producto, entrada y vencimiento, venta con descuento y anulación con reposición de stock, cambio de contraseña y login.
+  - Playwright: primer inicio, panel, clientes, mascotas, vacuna con recordatorio, inventario con categoría, producto, entrada y vencimiento, venta con descuento y anulación con reposición de stock, peluquería con servicios, peluquero, turno, estados y cobro, cambio de contraseña y login.
   - Comando: `npm.cmd run test:e2e`.
 - Manuales:
   - Alta de cliente y mascota.
