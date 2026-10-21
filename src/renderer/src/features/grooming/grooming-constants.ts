@@ -105,7 +105,8 @@ export function buildWhatsAppUrl(
     date: string
     startMinutes: number
   },
-  businessName: string
+  businessName: string,
+  template?: string | null
 ): string | null {
   const phoneDigits = appointment.clientPhone?.replace(/\D/g, '') ?? ''
 
@@ -115,12 +116,16 @@ export function buildWhatsAppUrl(
 
   const [year, month, day] = appointment.date.split('-')
   const serviceNames = appointment.services.map((service) => service.name).join(', ')
-  const text = [
-    `Hola ${appointment.clientName}, te recordamos el turno de ${appointment.petName}`,
-    `para ${serviceNames} el ${day}/${month}/${year} a las ${formatMinutes(
-      appointment.startMinutes
-    )} en ${businessName}. ¡Gracias!`
-  ].join(' ')
+  const defaultTemplate =
+    'Hola {cliente}, te recordamos el turno de {mascota} para {servicios} el {fecha} a las {hora} en {negocio}. ¡Gracias!'
+  const text = (template?.trim() || defaultTemplate)
+    .replaceAll('{cliente}', appointment.clientName)
+    .replaceAll('{mascota}', appointment.petName)
+    .replaceAll('{servicios}', serviceNames)
+    .replaceAll('{servicio}', serviceNames)
+    .replaceAll('{fecha}', `${day}/${month}/${year}`)
+    .replaceAll('{hora}', formatMinutes(appointment.startMinutes))
+    .replaceAll('{negocio}', businessName)
 
   return `https://wa.me/${phoneDigits}?text=${encodeURIComponent(text)}`
 }

@@ -43,7 +43,11 @@ export const api = {
     update: (input: Parameters<typeof window.api.users.update>[0]) =>
       unwrap(window.api.users.update(input)),
     resetPassword: (input: Parameters<typeof window.api.users.resetPassword>[0]) =>
-      unwrap(window.api.users.resetPassword(input))
+      unwrap(window.api.users.resetPassword(input)),
+    permissions: () => unwrap(window.api.users.permissions()),
+    updatePermissions: (
+      input: Parameters<typeof window.api.users.updatePermissions>[0]
+    ) => unwrap(window.api.users.updatePermissions(input))
   },
   clients: {
     list: (input: Parameters<typeof window.api.clients.list>[0]) =>
@@ -126,6 +130,31 @@ export const api = {
     cancel: (input: Parameters<typeof window.api.sales.cancel>[0]) =>
       unwrap(window.api.sales.cancel(input)),
     summary: () => unwrap(window.api.sales.summary())
+  },
+  reports: {
+    get: (input: Parameters<typeof window.api.reports.get>[0]) =>
+      unwrap(window.api.reports.get(input)),
+    exportCsv: (input: Parameters<typeof window.api.reports.exportCsv>[0]) =>
+      unwrap(window.api.reports.exportCsv(input)),
+    exportPdf: (input: Parameters<typeof window.api.reports.exportPdf>[0]) =>
+      unwrap(window.api.reports.exportPdf(input))
+  },
+  settings: {
+    get: () => unwrap(window.api.settings.get()),
+    update: (input: Parameters<typeof window.api.settings.update>[0]) =>
+      unwrap(window.api.settings.update(input)),
+    pickBackupFolder: () => unwrap(window.api.settings.pickBackupFolder()),
+    openBackupFolder: () => unwrap(window.api.settings.openBackupFolder())
+  },
+  backups: {
+    list: () => unwrap(window.api.backups.list()),
+    create: () => unwrap(window.api.backups.create()),
+    restore: (input: Parameters<typeof window.api.backups.restore>[0]) =>
+      unwrap(window.api.backups.restore(input))
+  },
+  activity: {
+    list: (input: Parameters<typeof window.api.activity.list>[0]) =>
+      unwrap(window.api.activity.list(input))
   },
   grooming: {
     listServices: (

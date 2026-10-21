@@ -3,10 +3,12 @@ import { AppError } from '@shared/errors'
 import type {
   CreateUserInput,
   ResetPasswordInput,
+  UpdateRolePermissionsInput,
   UpdateUserInput
 } from '@shared/schemas'
-import type { UserRecord } from '@shared/types'
-import { hashPassword, type UserRow } from './auth'
+import { PERMISSION_MODULES, ROLES } from '@shared/roles'
+import type { RolePermissionsRecord, UserRecord } from '@shared/types'
+import { getPermissionsForRole, hashPassword, type UserRow } from './auth'
 
 function toUserRecord(row: UserRow): UserRecord {
   return {
@@ -132,4 +134,38 @@ export function resetUserPassword(
     new Date().toISOString(),
     input.id
   )
+}
+
+export function listRolePermissions(
+  db: Database.Database
+): RolePermissionsRecord[] {
+  return ROLES.map((role) => ({
+    role,
+    permissions: getPermissionsForRole(db, role)
+  }))
+}
+
+export function updateRolePermissions(
+  db: Database.Database,
+  input: UpdateRolePermissionsInput
+): RolePermissionsRecord[] {
+  const allowed = new Set(input.permissions)
+  const now = new Date().toISOString()
+  const update = db.transaction(() => {
+    for (const module of PERMISSION_MODULES) {
+      db.prepare(
+        `INSERT INTO role_permissions (role, module, allowed)
+         VALUES (?, ?, ?)
+         ON CONFLICT(role, module) DO UPDATE SET allowed = excluded.allowed`
+      ).run(input.role, module, allowed.has(module) ? 1 : 0)
+    }
+
+    db.prepare('UPDATE users SET updated_at = ? WHERE role = ?').run(
+      now,
+      input.role
+    )
+  })
+
+  update()
+  return listRolePermissions(db)
 }

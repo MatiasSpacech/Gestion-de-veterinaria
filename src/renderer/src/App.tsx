@@ -1,8 +1,3 @@
-import {
-  IconChartBar,
-  IconSettings,
-  IconShieldLock
-} from '@tabler/icons-react'
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom'
 import { AppLayout } from './components/AppLayout'
 import { DashboardPage } from './features/dashboard/DashboardPage'
@@ -14,8 +9,10 @@ import { GroomingPage } from './features/grooming/GroomingPage'
 import { InventoryPage } from './features/inventory/InventoryPage'
 import { PetDetailPage } from './features/pets/PetDetailPage'
 import { PetsPage } from './features/pets/PetsPage'
-import { PlaceholderPage } from './features/placeholder/PlaceholderPage'
+import { ReportsPage } from './features/reports/ReportsPage'
 import { SalesPage } from './features/sales/SalesPage'
+import { SettingsPage } from './features/settings/SettingsPage'
+import { UsersPage } from './features/users/UsersPage'
 import { useAuth } from './lib/use-auth'
 
 function SetupRoute(): React.JSX.Element {
@@ -76,39 +73,9 @@ export default function App(): React.JSX.Element {
           <Route path="inventario" element={<InventoryPage />} />
           <Route path="ventas" element={<SalesPage />} />
           <Route path="peluqueria" element={<GroomingPage />} />
-          <Route
-            path="reportes"
-            element={
-              <PlaceholderPage
-                title="Reportes"
-                description="Ventas por período, productos más vendidos, valorización de stock y estadísticas de peluquería."
-                phase="Fase 6"
-                icon={IconChartBar}
-              />
-            }
-          />
-          <Route
-            path="usuarios"
-            element={
-              <PlaceholderPage
-                title="Usuarios"
-                description="Alta de empleados, roles y permisos por módulo."
-                phase="Fase 6"
-                icon={IconShieldLock}
-              />
-            }
-          />
-          <Route
-            path="configuracion"
-            element={
-              <PlaceholderPage
-                title="Configuración"
-                description="Datos del local, horarios, servicios, peluqueros, backups y preferencias de la aplicación."
-                phase="Fase 6"
-                icon={IconSettings}
-              />
-            }
-          />
+          <Route path="reportes" element={<ReportsPage />} />
+          <Route path="usuarios" element={<UsersPage />} />
+          <Route path="configuracion" element={<SettingsPage />} />
         </Route>
       </Route>
 

@@ -37,6 +37,7 @@ import type {
   StockMovement
 } from '@shared/types'
 import { getDb } from '@main/db'
+import { logActivity } from '@main/services/activity'
 import {
   adjustStock,
   buildInventoryCsv,
@@ -68,21 +69,54 @@ export function registerInventoryHandlers(): void {
   registerProtectedHandler<CreateCategoryInput, ProductCategory>(
     IPC.inventory.createCategory,
     createCategorySchema,
-    (input) => createCategory(getDb(), input),
+    (input, user) => {
+      const db = getDb()
+      const category = createCategory(db, input)
+      logActivity(db, {
+        userId: user.id,
+        action: 'category.create',
+        entityType: 'product_category',
+        entityId: category.id,
+        details: { name: category.name }
+      })
+      return category
+    },
     { permission: 'inventario' }
   )
 
   registerProtectedHandler<UpdateCategoryInput, ProductCategory>(
     IPC.inventory.updateCategory,
     updateCategorySchema,
-    (input) => updateCategory(getDb(), input),
+    (input, user) => {
+      const db = getDb()
+      const category = updateCategory(db, input)
+      logActivity(db, {
+        userId: user.id,
+        action: 'category.update',
+        entityType: 'product_category',
+        entityId: category.id,
+        details: { name: category.name }
+      })
+      return category
+    },
     { permission: 'inventario' }
   )
 
   registerProtectedHandler<SetActiveInput, ProductCategory>(
     IPC.inventory.setCategoryActive,
     setActiveSchema,
-    (input) => setCategoryActive(getDb(), input),
+    (input, user) => {
+      const db = getDb()
+      const category = setCategoryActive(db, input)
+      logActivity(db, {
+        userId: user.id,
+        action: 'category.set-active',
+        entityType: 'product_category',
+        entityId: category.id,
+        details: { active: category.active }
+      })
+      return category
+    },
     { permission: 'inventario' }
   )
 
@@ -103,21 +137,54 @@ export function registerInventoryHandlers(): void {
   registerProtectedHandler<CreateProductInput, ProductRecord>(
     IPC.inventory.createProduct,
     createProductSchema,
-    (input) => createProduct(getDb(), input),
+    (input, user) => {
+      const db = getDb()
+      const product = createProduct(db, input)
+      logActivity(db, {
+        userId: user.id,
+        action: 'product.create',
+        entityType: 'product',
+        entityId: product.id,
+        details: { name: product.name, sku: product.sku }
+      })
+      return product
+    },
     { permission: 'inventario' }
   )
 
   registerProtectedHandler<UpdateProductInput, ProductRecord>(
     IPC.inventory.updateProduct,
     updateProductSchema,
-    (input) => updateProduct(getDb(), input),
+    (input, user) => {
+      const db = getDb()
+      const product = updateProduct(db, input)
+      logActivity(db, {
+        userId: user.id,
+        action: 'product.update',
+        entityType: 'product',
+        entityId: product.id,
+        details: { name: product.name, sku: product.sku }
+      })
+      return product
+    },
     { permission: 'inventario' }
   )
 
   registerProtectedHandler<SetActiveInput, ProductRecord>(
     IPC.inventory.setProductActive,
     setActiveSchema,
-    (input) => setProductActive(getDb(), input),
+    (input, user) => {
+      const db = getDb()
+      const product = setProductActive(db, input)
+      logActivity(db, {
+        userId: user.id,
+        action: 'product.set-active',
+        entityType: 'product',
+        entityId: product.id,
+        details: { name: product.name, active: product.active }
+      })
+      return product
+    },
     { permission: 'inventario' }
   )
 
@@ -152,14 +219,44 @@ export function registerInventoryHandlers(): void {
   registerProtectedHandler<StockEntryInput, ProductRecord>(
     IPC.inventory.registerEntry,
     stockEntrySchema,
-    (input, user) => registerStockEntry(getDb(), input, user.id),
+    (input, user) => {
+      const db = getDb()
+      const product = registerStockEntry(db, input, user.id)
+      logActivity(db, {
+        userId: user.id,
+        action: 'inventory.entry',
+        entityType: 'product',
+        entityId: product.id,
+        details: {
+          name: product.name,
+          quantity: input.quantity,
+          batchCode: input.batchCode
+        }
+      })
+      return product
+    },
     { permission: 'inventario' }
   )
 
   registerProtectedHandler<StockAdjustmentInput, ProductRecord>(
     IPC.inventory.adjustStock,
     stockAdjustmentSchema,
-    (input, user) => adjustStock(getDb(), input, user.id),
+    (input, user) => {
+      const db = getDb()
+      const product = adjustStock(db, input, user.id)
+      logActivity(db, {
+        userId: user.id,
+        action: 'inventory.adjustment',
+        entityType: 'product',
+        entityId: product.id,
+        details: {
+          name: product.name,
+          quantityDelta: input.quantityDelta,
+          reason: input.reason
+        }
+      })
+      return product
+    },
     { permission: 'inventario', adminOnly: true }
   )
 

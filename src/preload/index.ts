@@ -13,7 +13,10 @@ const api: VetApi = {
     list: () => ipcRenderer.invoke(IPC.users.list),
     create: (input) => ipcRenderer.invoke(IPC.users.create, input),
     update: (input) => ipcRenderer.invoke(IPC.users.update, input),
-    resetPassword: (input) => ipcRenderer.invoke(IPC.users.resetPassword, input)
+    resetPassword: (input) => ipcRenderer.invoke(IPC.users.resetPassword, input),
+    permissions: () => ipcRenderer.invoke(IPC.users.permissions),
+    updatePermissions: (input) =>
+      ipcRenderer.invoke(IPC.users.updatePermissions, input)
   },
   clients: {
     list: (input) => ipcRenderer.invoke(IPC.clients.list, input),
@@ -64,6 +67,25 @@ const api: VetApi = {
     get: (input) => ipcRenderer.invoke(IPC.sales.get, input),
     cancel: (input) => ipcRenderer.invoke(IPC.sales.cancel, input),
     summary: () => ipcRenderer.invoke(IPC.sales.summary)
+  },
+  reports: {
+    get: (input) => ipcRenderer.invoke(IPC.reports.get, input),
+    exportCsv: (input) => ipcRenderer.invoke(IPC.reports.exportCsv, input),
+    exportPdf: (input) => ipcRenderer.invoke(IPC.reports.exportPdf, input)
+  },
+  settings: {
+    get: () => ipcRenderer.invoke(IPC.settings.get),
+    update: (input) => ipcRenderer.invoke(IPC.settings.update, input),
+    pickBackupFolder: () => ipcRenderer.invoke(IPC.settings.pickBackupFolder),
+    openBackupFolder: () => ipcRenderer.invoke(IPC.settings.openBackupFolder)
+  },
+  backups: {
+    list: () => ipcRenderer.invoke(IPC.backups.list),
+    create: () => ipcRenderer.invoke(IPC.backups.create),
+    restore: (input) => ipcRenderer.invoke(IPC.backups.restore, input)
+  },
+  activity: {
+    list: (input) => ipcRenderer.invoke(IPC.activity.list, input)
   },
   grooming: {
     listServices: (input) => ipcRenderer.invoke(IPC.grooming.listServices, input),

@@ -10,8 +10,9 @@ import {
   shell
 } from 'electron'
 import log from 'electron-log/main'
-import { closeDatabase, initDatabase } from './db'
+import { closeDatabase, getDb, initDatabase } from './db'
 import { registerIpcHandlers } from './ipc'
+import { runAutomaticBackup } from './services/backups'
 import { registerPetPhotoProtocol, registerPetPhotoScheme } from './photos'
 
 const PRODUCTION_CSP = [
@@ -164,6 +165,21 @@ if (!hasSingleInstanceLock) {
       const databasePath = join(userDataPath, 'veterinaria.db')
       initDatabase(databasePath)
       log.info(`Base de datos inicializada en ${databasePath}`)
+
+      const backupFolder = join(
+        app.getPath('documents'),
+        'VetGestión',
+        'Backups'
+      )
+      void runAutomaticBackup(getDb(), backupFolder)
+        .then((backup) => {
+          if (backup) {
+            log.info(`Backup automático creado: ${backup.filePath}`)
+          }
+        })
+        .catch((error: unknown) => {
+          log.error('No se pudo crear el backup automático', error)
+        })
     } catch (error) {
       log.error('No se pudo inicializar la base de datos', error)
       dialog.showErrorBox(

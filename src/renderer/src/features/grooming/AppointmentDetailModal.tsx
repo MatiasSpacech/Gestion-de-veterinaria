@@ -55,6 +55,10 @@ export function AppointmentDetailModal({
     queryFn: () => api.grooming.getAppointment({ id: appointmentId! }),
     enabled: appointmentId !== null
   })
+  const settingsQuery = useQuery({
+    queryKey: ['settings'],
+    queryFn: api.settings.get
+  })
 
   const statusMutation = useMutation({
     mutationFn: (input: { id: number; status: AppointmentStatus }) =>
@@ -81,7 +85,11 @@ export function AppointmentDetailModal({
 
   const appointment = appointmentQuery.data
   const whatsappUrl = appointment
-    ? buildWhatsAppUrl(appointment, businessName)
+    ? buildWhatsAppUrl(
+        appointment,
+        businessName,
+        settingsQuery.data?.whatsappTemplate
+      )
     : null
 
   const applyStatus = (

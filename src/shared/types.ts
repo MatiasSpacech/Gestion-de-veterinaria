@@ -340,3 +340,87 @@ export interface ChargeAppointmentResult {
   appointment: AppointmentRecord
   sale: SaleDetail
 }
+
+export interface BusinessSettings {
+  name: string
+  address: string
+  phone: string
+  email: string
+  currency: string
+  openDays: string[]
+  openTime: string
+  closeTime: string
+  slotMinutes: number
+  expiryAlertDays: number
+  vaccineAlertDays: number
+  whatsappTemplate: string
+  backupEnabled: boolean
+  backupFolder: string
+  backupRetention: number
+  lastBackupAt: string
+}
+
+export interface RolePermissionsRecord {
+  role: Role
+  permissions: PermissionModule[]
+}
+
+export interface ActivityRecord {
+  id: number
+  userId: number | null
+  userName: string | null
+  action: string
+  entityType: string | null
+  entityId: number | null
+  details: string | null
+  createdAt: string
+}
+
+export interface BackupRecord {
+  fileName: string
+  filePath: string
+  sizeBytes: number
+  createdAt: string
+}
+
+export interface TopSellingItem {
+  name: string
+  quantity: number
+  totalCents: number
+}
+
+export interface DailySales {
+  date: string
+  count: number
+  totalCents: number
+}
+
+export interface PaymentBreakdown {
+  method: PaymentMethod
+  count: number
+  totalCents: number
+}
+
+export interface ReportData {
+  dateFrom: string
+  dateTo: string
+  salesCount: number
+  cancelledSalesCount: number
+  grossSalesCents: number
+  discountsCents: number
+  netSalesCents: number
+  averageTicketCents: number
+  productRevenueCents: number
+  serviceRevenueCents: number
+  completedAppointments: number
+  cancelledAppointments: number
+  noShowAppointments: number
+  topProducts: TopSellingItem[]
+  topServices: TopSellingItem[]
+  salesByDay: DailySales[]
+  paymentBreakdown: PaymentBreakdown[]
+  inventoryCostCents: number
+  inventoryRetailCents: number
+  lowStockCount: number
+  outOfStockCount: number
+}

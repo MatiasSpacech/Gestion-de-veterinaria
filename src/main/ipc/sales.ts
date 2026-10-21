@@ -11,6 +11,7 @@ import {
 } from '@shared/schemas'
 import type { SaleDetail, SaleListRecord, SalesSummary } from '@shared/types'
 import { getDb } from '@main/db'
+import { logActivity } from '@main/services/activity'
 import {
   cancelSale,
   createSale,
@@ -24,7 +25,22 @@ export function registerSalesHandlers(): void {
   registerProtectedHandler<CreateSaleInput, SaleDetail>(
     IPC.sales.create,
     createSaleSchema,
-    (input, user) => createSale(getDb(), input, user.id),
+    (input, user) => {
+      const db = getDb()
+      const sale = createSale(db, input, user.id)
+      logActivity(db, {
+        userId: user.id,
+        action: 'sale.create',
+        entityType: 'sale',
+        entityId: sale.id,
+        details: {
+          number: sale.number,
+          totalCents: sale.totalCents,
+          items: sale.items.length
+        }
+      })
+      return sale
+    },
     { permission: 'ventas' }
   )
 
@@ -45,7 +61,18 @@ export function registerSalesHandlers(): void {
   registerProtectedHandler<CancelSaleInput, SaleDetail>(
     IPC.sales.cancel,
     cancelSaleSchema,
-    (input, user) => cancelSale(getDb(), input, user.id),
+    (input, user) => {
+      const db = getDb()
+      const sale = cancelSale(db, input, user.id)
+      logActivity(db, {
+        userId: user.id,
+        action: 'sale.cancel',
+        entityType: 'sale',
+        entityId: sale.id,
+        details: { number: sale.number, reason: input.reason }
+      })
+      return sale
+    },
     { permission: 'ventas', adminOnly: true }
   )
 

@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { ROLES } from './roles'
+import { PERMISSION_MODULES, ROLES } from './roles'
 
 const nameSchema = z
   .string()
@@ -615,3 +615,117 @@ export const chargeAppointmentSchema = z.object({
 })
 
 export type ChargeAppointmentInput = z.infer<typeof chargeAppointmentSchema>
+
+const settingText = (max: number) =>
+  z
+    .string()
+    .trim()
+    .max(max, `El texto no puede superar los ${max} caracteres`)
+    .optional()
+    .default('')
+
+const timeSchema = z
+  .string()
+  .regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Ingresá una hora válida')
+
+export const updateSettingsSchema = z
+  .object({
+    name: z
+      .string()
+      .trim()
+      .min(2, 'El nombre del local debe tener al menos 2 caracteres')
+      .max(80, 'El nombre no puede superar los 80 caracteres'),
+    address: settingText(200),
+    phone: settingText(40),
+    email: z
+      .string()
+      .trim()
+      .max(120, 'El correo no puede superar los 120 caracteres')
+      .optional()
+      .default('')
+      .refine(
+        (value) => value === '' || z.string().email().safeParse(value).success,
+        'Ingresá un correo válido'
+      ),
+    currency: z.enum(['ARS']),
+    openDays: z
+      .array(z.enum(['1', '2', '3', '4', '5', '6', '7']))
+      .min(1, 'Seleccioná al menos un día de apertura'),
+    openTime: timeSchema,
+    closeTime: timeSchema,
+    slotMinutes: z
+      .number()
+      .int('El intervalo debe ser un número entero')
+      .min(5, 'El intervalo mínimo es de 5 minutos')
+      .max(120, 'El intervalo no puede superar los 120 minutos'),
+    expiryAlertDays: z
+      .number()
+      .int()
+      .min(0, 'Los días no pueden ser negativos')
+      .max(365, 'El máximo es de 365 días'),
+    vaccineAlertDays: z
+      .number()
+      .int()
+      .min(0, 'Los días no pueden ser negativos')
+      .max(365, 'El máximo es de 365 días'),
+    whatsappTemplate: z
+      .string()
+      .trim()
+      .min(10, 'La plantilla debe tener al menos 10 caracteres')
+      .max(500, 'La plantilla no puede superar los 500 caracteres'),
+    backupEnabled: z.boolean(),
+    backupFolder: settingText(500),
+    backupRetention: z
+      .number()
+      .int()
+      .min(1, 'La retención mínima es de 1 copia')
+      .max(365, 'La retención máxima es de 365 copias')
+  })
+  .refine((value) => value.openTime < value.closeTime, {
+    message: 'La hora de cierre debe ser posterior a la apertura',
+    path: ['closeTime']
+  })
+
+export type UpdateSettingsInput = z.infer<typeof updateSettingsSchema>
+
+export const updateRolePermissionsSchema = z.object({
+  role: z.enum(['vendedor', 'peluquero']),
+  permissions: z.array(z.enum(PERMISSION_MODULES))
+})
+
+export type UpdateRolePermissionsInput = z.infer<
+  typeof updateRolePermissionsSchema
+>
+
+export const listActivitySchema = z.object({
+  limit: z.number().int().min(1).max(500).optional().default(200),
+  search: z
+    .string()
+    .trim()
+    .max(100)
+    .nullable()
+    .optional()
+    .transform((value) => value ?? null)
+})
+
+export type ListActivityInput = z.infer<typeof listActivitySchema>
+
+export const reportRangeSchema = z
+  .object({
+    dateFrom: isoDateSchema,
+    dateTo: isoDateSchema
+  })
+  .refine((value) => value.dateFrom <= value.dateTo, {
+    message: 'La fecha desde no puede ser posterior a la fecha hasta',
+    path: ['dateTo']
+  })
+
+export type ReportRangeInput = z.infer<typeof reportRangeSchema>
+
+export const restoreBackupSchema = z.object({
+  fileName: z
+    .string()
+    .regex(/^[a-zA-Z0-9._-]+\.db$/, 'El archivo de backup no es válido')
+})
+
+export type RestoreBackupInput = z.infer<typeof restoreBackupSchema>

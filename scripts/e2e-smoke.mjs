@@ -339,6 +339,55 @@ try {
 
   await win
     .locator('.mantine-NavLink-root')
+    .filter({ hasText: /^Reportes$/ })
+    .click()
+  await win.getByRole('heading', { name: 'Reportes', level: 2 }).waitFor()
+  await win.getByText('Ventas netas', { exact: true }).waitFor()
+  await win.getByText('Baño E2E', { exact: true }).waitFor()
+  await win.getByRole('button', { name: 'Exportar CSV' }).waitFor()
+  await win.getByRole('button', { name: 'Exportar PDF' }).waitFor()
+
+  await win
+    .locator('.mantine-NavLink-root')
+    .filter({ hasText: /^Usuarios$/ })
+    .click()
+  await win
+    .getByRole('heading', { name: 'Usuarios y permisos', level: 2 })
+    .waitFor()
+  await win.getByRole('button', { name: 'Nuevo usuario' }).click()
+  const userDialog = win
+    .getByRole('dialog')
+    .filter({ hasText: 'Nuevo usuario' })
+  await userDialog.getByLabel('Nombre completo').fill('Vendedor E2E')
+  await userDialog.getByLabel('Usuario').fill('vendedor.e2e')
+  await userDialog.getByLabel('Contraseña inicial').fill('clave12345')
+  await userDialog.getByRole('button', { name: 'Crear usuario' }).click()
+  await win.getByText('Usuario creado').waitFor()
+  await win.getByRole('row', { name: /Vendedor E2E/ }).waitFor()
+
+  await win.getByRole('tab', { name: 'Permisos por rol' }).click()
+  await win.getByRole('button', { name: 'Guardar permisos' }).first().click()
+  await win.getByText('Permisos actualizados').waitFor()
+
+  await win
+    .locator('.mantine-NavLink-root')
+    .filter({ hasText: /^Configuración$/ })
+    .click()
+  await win.getByRole('heading', { name: 'Configuración', level: 2 }).waitFor()
+  await win.getByText('Datos del local', { exact: true }).waitFor()
+  await win.getByLabel('Teléfono').fill('11 5555-9999')
+  await win.getByRole('button', { name: 'Guardar configuración' }).click()
+  await win.getByText('Configuración guardada').waitFor()
+
+  await win.getByRole('tab', { name: 'Backups' }).click()
+  await win.getByText('Copias automáticas', { exact: true }).waitFor()
+  await win.getByText('Backups disponibles', { exact: true }).waitFor()
+
+  await win.getByRole('tab', { name: 'Auditoría' }).click()
+  await win.getByText('Configuración actualizada', { exact: true }).waitFor()
+
+  await win
+    .locator('.mantine-NavLink-root')
     .filter({ hasText: /^Panel$/ })
     .click()
   await win
@@ -372,7 +421,7 @@ try {
 
   passed = true
   console.log(
-    'E2E smoke OK: setup, dashboard, clientes, mascotas, vacuna, recordatorios, inventario, venta, anulación, peluquería, cobro, contraseña y login.'
+    'E2E smoke OK: setup, dashboard, clientes, mascotas, vacuna, recordatorios, inventario, venta, anulación, peluquería, cobro, reportes, usuarios, configuración, auditoría, contraseña y login.'
   )
 } finally {
   await app.close().catch(() => {})

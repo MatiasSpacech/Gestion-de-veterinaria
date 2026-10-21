@@ -230,11 +230,11 @@ Detalles:
 
 ### Fase 6 — Reportes y administración
 
-- Reportes y exportación CSV/PDF.
-- Configuración completa.
-- Usuarios y permisos configurables.
-- Backups y restauración.
-- Auditoría.
+- [x] Reportes y exportación CSV/PDF.
+- [x] Configuración completa.
+- [x] Usuarios y permisos configurables.
+- [x] Backups y restauración.
+- [x] Auditoría.
 
 ### Fase 7 — Entrega
 
@@ -251,13 +251,14 @@ Detalles:
   - Rollback de transacciones.
   - Solapamiento de turnos.
   - Permisos.
+  - Reportes, configuración, auditoría y backups.
   - Hash y verificación de contraseñas.
 - Integración:
   - Repositorios contra SQLite temporal.
   - Migraciones.
   - Restauración de backups.
 - End-to-end:
-  - Playwright: primer inicio, panel, clientes, mascotas, vacuna con recordatorio, inventario con categoría, producto, entrada y vencimiento, venta con descuento y anulación con reposición de stock, peluquería con servicios, peluquero, turno, estados y cobro, cambio de contraseña y login.
+  - Playwright: primer inicio, panel, clientes, mascotas, vacuna con recordatorio, inventario con categoría, producto, entrada y vencimiento, venta con descuento y anulación con reposición de stock, peluquería con servicios, peluquero, turno, estados y cobro, reportes, usuarios, permisos, configuración, auditoría, cambio de contraseña y login.
   - Comando: `npm.cmd run test:e2e`.
 - Manuales:
   - Alta de cliente y mascota.

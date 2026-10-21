@@ -13,11 +13,12 @@ import type {
   CreateServiceInput,
   CreateUserInput,
   GetByIdInput,
+  ListActivityInput,
   ListAppointmentsInput,
-  ListGroomersInput,
-  ListServicesInput,
   ListCategoriesInput,
   ListClientsInput,
+  ListGroomersInput,
+  ListServicesInput,
   ListMedicalRecordsInput,
   ListPetsInput,
   ListProductBatchesInput,
@@ -25,7 +26,9 @@ import type {
   ListSalesInput,
   ListStockMovementsInput,
   LoginInput,
+  ReportRangeInput,
   ResetPasswordInput,
+  RestoreBackupInput,
   SetActiveInput,
   SetAppointmentStatusInput,
   SetupAdminInput,
@@ -37,15 +40,20 @@ import type {
   UpdateGroomerInput,
   UpdatePetInput,
   UpdateProductInput,
+  UpdateRolePermissionsInput,
   UpdateServiceInput,
+  UpdateSettingsInput,
   UpdateUserInput,
   WeightHistoryInput
 } from './schemas'
 import type {
+  ActivityRecord,
   AppInfo,
   AppointmentRecord,
   AppointmentSummary,
   AuthStatus,
+  BackupRecord,
+  BusinessSettings,
   ChargeAppointmentResult,
   ClientDetail,
   ClientRecord,
@@ -57,6 +65,8 @@ import type {
   ProductBatch,
   ProductCategory,
   ProductRecord,
+  ReportData,
+  RolePermissionsRecord,
   SaleDetail,
   SaleListRecord,
   SalesSummary,
@@ -79,7 +89,9 @@ export const IPC = {
     list: 'users:list',
     create: 'users:create',
     update: 'users:update',
-    resetPassword: 'users:reset-password'
+    resetPassword: 'users:reset-password',
+    permissions: 'users:permissions',
+    updatePermissions: 'users:update-permissions'
   },
   clients: {
     list: 'clients:list',
@@ -124,6 +136,25 @@ export const IPC = {
     get: 'sales:get',
     cancel: 'sales:cancel',
     summary: 'sales:summary'
+  },
+  reports: {
+    get: 'reports:get',
+    exportCsv: 'reports:export-csv',
+    exportPdf: 'reports:export-pdf'
+  },
+  settings: {
+    get: 'settings:get',
+    update: 'settings:update',
+    pickBackupFolder: 'settings:pick-backup-folder',
+    openBackupFolder: 'settings:open-backup-folder'
+  },
+  backups: {
+    list: 'backups:list',
+    create: 'backups:create',
+    restore: 'backups:restore'
+  },
+  activity: {
+    list: 'activity:list'
   },
   grooming: {
     listServices: 'grooming:list-services',
@@ -172,6 +203,10 @@ export interface VetApi {
     create: (input: CreateUserInput) => Promise<IpcResult<UserRecord>>
     update: (input: UpdateUserInput) => Promise<IpcResult<UserRecord>>
     resetPassword: (input: ResetPasswordInput) => Promise<IpcResult<null>>
+    permissions: () => Promise<IpcResult<RolePermissionsRecord[]>>
+    updatePermissions: (
+      input: UpdateRolePermissionsInput
+    ) => Promise<IpcResult<RolePermissionsRecord[]>>
   }
   clients: {
     list: (input: ListClientsInput) => Promise<IpcResult<ClientRecord[]>>
@@ -232,6 +267,27 @@ export interface VetApi {
     get: (input: GetByIdInput) => Promise<IpcResult<SaleDetail>>
     cancel: (input: CancelSaleInput) => Promise<IpcResult<SaleDetail>>
     summary: () => Promise<IpcResult<SalesSummary>>
+  }
+  reports: {
+    get: (input: ReportRangeInput) => Promise<IpcResult<ReportData>>
+    exportCsv: (input: ReportRangeInput) => Promise<IpcResult<string | null>>
+    exportPdf: (input: ReportRangeInput) => Promise<IpcResult<string | null>>
+  }
+  settings: {
+    get: () => Promise<IpcResult<BusinessSettings>>
+    update: (
+      input: UpdateSettingsInput
+    ) => Promise<IpcResult<BusinessSettings>>
+    pickBackupFolder: () => Promise<IpcResult<string | null>>
+    openBackupFolder: () => Promise<IpcResult<string | null>>
+  }
+  backups: {
+    list: () => Promise<IpcResult<BackupRecord[]>>
+    create: () => Promise<IpcResult<BackupRecord>>
+    restore: (input: RestoreBackupInput) => Promise<IpcResult<null>>
+  }
+  activity: {
+    list: (input: ListActivityInput) => Promise<IpcResult<ActivityRecord[]>>
   }
   grooming: {
     listServices: (input: ListServicesInput) => Promise<IpcResult<ServiceRecord[]>>

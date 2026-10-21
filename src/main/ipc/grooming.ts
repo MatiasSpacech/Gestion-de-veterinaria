@@ -35,6 +35,7 @@ import type {
   ServiceRecord
 } from '@shared/types'
 import { getDb } from '@main/db'
+import { logActivity } from '@main/services/activity'
 import {
   chargeAppointment,
   createAppointment,
@@ -65,21 +66,54 @@ export function registerGroomingHandlers(): void {
   registerProtectedHandler<CreateServiceInput, ServiceRecord>(
     IPC.grooming.createService,
     createServiceSchema,
-    (input) => createService(getDb(), input),
+    (input, user) => {
+      const db = getDb()
+      const service = createService(db, input)
+      logActivity(db, {
+        userId: user.id,
+        action: 'service.create',
+        entityType: 'service',
+        entityId: service.id,
+        details: { name: service.name }
+      })
+      return service
+    },
     { permission: 'peluqueria', adminOnly: true }
   )
 
   registerProtectedHandler<UpdateServiceInput, ServiceRecord>(
     IPC.grooming.updateService,
     updateServiceSchema,
-    (input) => updateService(getDb(), input),
+    (input, user) => {
+      const db = getDb()
+      const service = updateService(db, input)
+      logActivity(db, {
+        userId: user.id,
+        action: 'service.update',
+        entityType: 'service',
+        entityId: service.id,
+        details: { name: service.name }
+      })
+      return service
+    },
     { permission: 'peluqueria', adminOnly: true }
   )
 
   registerProtectedHandler<SetActiveInput, ServiceRecord>(
     IPC.grooming.setServiceActive,
     setActiveSchema,
-    (input) => setServiceActive(getDb(), input),
+    (input, user) => {
+      const db = getDb()
+      const service = setServiceActive(db, input)
+      logActivity(db, {
+        userId: user.id,
+        action: 'service.set-active',
+        entityType: 'service',
+        entityId: service.id,
+        details: { name: service.name, active: service.active }
+      })
+      return service
+    },
     { permission: 'peluqueria', adminOnly: true }
   )
 
@@ -93,21 +127,54 @@ export function registerGroomingHandlers(): void {
   registerProtectedHandler<CreateGroomerInput, GroomerRecord>(
     IPC.grooming.createGroomer,
     createGroomerSchema,
-    (input) => createGroomer(getDb(), input),
+    (input, user) => {
+      const db = getDb()
+      const groomer = createGroomer(db, input)
+      logActivity(db, {
+        userId: user.id,
+        action: 'groomer.create',
+        entityType: 'groomer',
+        entityId: groomer.id,
+        details: { name: groomer.name }
+      })
+      return groomer
+    },
     { permission: 'peluqueria', adminOnly: true }
   )
 
   registerProtectedHandler<UpdateGroomerInput, GroomerRecord>(
     IPC.grooming.updateGroomer,
     updateGroomerSchema,
-    (input) => updateGroomer(getDb(), input),
+    (input, user) => {
+      const db = getDb()
+      const groomer = updateGroomer(db, input)
+      logActivity(db, {
+        userId: user.id,
+        action: 'groomer.update',
+        entityType: 'groomer',
+        entityId: groomer.id,
+        details: { name: groomer.name }
+      })
+      return groomer
+    },
     { permission: 'peluqueria', adminOnly: true }
   )
 
   registerProtectedHandler<SetActiveInput, GroomerRecord>(
     IPC.grooming.setGroomerActive,
     setActiveSchema,
-    (input) => setGroomerActive(getDb(), input),
+    (input, user) => {
+      const db = getDb()
+      const groomer = setGroomerActive(db, input)
+      logActivity(db, {
+        userId: user.id,
+        action: 'groomer.set-active',
+        entityType: 'groomer',
+        entityId: groomer.id,
+        details: { name: groomer.name, active: groomer.active }
+      })
+      return groomer
+    },
     { permission: 'peluqueria', adminOnly: true }
   )
 
@@ -128,21 +195,62 @@ export function registerGroomingHandlers(): void {
   registerProtectedHandler<CreateAppointmentInput, AppointmentRecord>(
     IPC.grooming.createAppointment,
     createAppointmentSchema,
-    (input) => createAppointment(getDb(), input),
+    (input, user) => {
+      const db = getDb()
+      const appointment = createAppointment(db, input)
+      logActivity(db, {
+        userId: user.id,
+        action: 'appointment.create',
+        entityType: 'appointment',
+        entityId: appointment.id,
+        details: {
+          date: appointment.date,
+          startMinutes: appointment.startMinutes,
+          petName: appointment.petName
+        }
+      })
+      return appointment
+    },
     { permission: 'peluqueria' }
   )
 
   registerProtectedHandler<UpdateAppointmentInput, AppointmentRecord>(
     IPC.grooming.updateAppointment,
     updateAppointmentSchema,
-    (input) => updateAppointment(getDb(), input),
+    (input, user) => {
+      const db = getDb()
+      const appointment = updateAppointment(db, input)
+      logActivity(db, {
+        userId: user.id,
+        action: 'appointment.update',
+        entityType: 'appointment',
+        entityId: appointment.id,
+        details: {
+          date: appointment.date,
+          startMinutes: appointment.startMinutes,
+          petName: appointment.petName
+        }
+      })
+      return appointment
+    },
     { permission: 'peluqueria' }
   )
 
   registerProtectedHandler<SetAppointmentStatusInput, AppointmentRecord>(
     IPC.grooming.setAppointmentStatus,
     setAppointmentStatusSchema,
-    (input) => setAppointmentStatus(getDb(), input),
+    (input, user) => {
+      const db = getDb()
+      const appointment = setAppointmentStatus(db, input)
+      logActivity(db, {
+        userId: user.id,
+        action: 'appointment.status',
+        entityType: 'appointment',
+        entityId: appointment.id,
+        details: { status: appointment.status, petName: appointment.petName }
+      })
+      return appointment
+    },
     { permission: 'peluqueria' }
   )
 
@@ -152,7 +260,21 @@ export function registerGroomingHandlers(): void {
   >(
     IPC.grooming.chargeAppointment,
     chargeAppointmentSchema,
-    (input, user) => chargeAppointment(getDb(), input, user.id),
+    (input, user) => {
+      const db = getDb()
+      const result = chargeAppointment(db, input, user.id)
+      logActivity(db, {
+        userId: user.id,
+        action: 'appointment.charge',
+        entityType: 'appointment',
+        entityId: result.appointment.id,
+        details: {
+          saleNumber: result.sale.number,
+          totalCents: result.sale.totalCents
+        }
+      })
+      return result
+    },
     { permission: 'peluqueria' }
   )
 
