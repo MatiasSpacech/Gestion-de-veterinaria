@@ -433,3 +433,52 @@ export const stockAdjustmentSchema = z.object({
 })
 
 export type StockAdjustmentInput = z.infer<typeof stockAdjustmentSchema>
+
+export const paymentMethodSchema = z.enum(['efectivo', 'tarjeta', 'transferencia'])
+
+export const saleStatusSchema = z.enum(['completada', 'anulada'])
+
+const saleItemInputSchema = z.object({
+  productId: idSchema,
+  quantity: z
+    .number()
+    .finite()
+    .positive('La cantidad debe ser mayor a cero')
+    .max(1_000_000, 'La cantidad es demasiado alta'),
+  discountCents: moneyCentsSchema.optional().default(0)
+})
+
+export const createSaleSchema = z.object({
+  clientId: optionalId,
+  petId: optionalId,
+  items: z
+    .array(saleItemInputSchema)
+    .min(1, 'Agregá al menos un producto')
+    .max(100, 'La venta no puede tener más de 100 ítems'),
+  discountCents: moneyCentsSchema.optional().default(0),
+  paymentMethod: paymentMethodSchema,
+  notes: optionalText(500)
+})
+
+export type CreateSaleInput = z.infer<typeof createSaleSchema>
+
+export const listSalesSchema = z.object({
+  search: z.string().trim().max(100).optional().default(''),
+  status: z.enum(['all', 'completada', 'anulada']).optional().default('all'),
+  dateFrom: optionalIsoDate,
+  dateTo: optionalIsoDate,
+  limit: z.number().int().min(1).max(500).optional().default(100)
+})
+
+export type ListSalesInput = z.infer<typeof listSalesSchema>
+
+export const cancelSaleSchema = z.object({
+  id: idSchema,
+  reason: z
+    .string()
+    .trim()
+    .min(2, 'Ingresá el motivo de la anulación')
+    .max(300, 'El motivo no puede superar los 300 caracteres')
+})
+
+export type CancelSaleInput = z.infer<typeof cancelSaleSchema>

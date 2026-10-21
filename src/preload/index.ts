@@ -58,6 +58,13 @@ const api: VetApi = {
     adjustStock: (input) => ipcRenderer.invoke(IPC.inventory.adjustStock, input),
     exportCsv: () => ipcRenderer.invoke(IPC.inventory.exportCsv)
   },
+  sales: {
+    create: (input) => ipcRenderer.invoke(IPC.sales.create, input),
+    list: (input) => ipcRenderer.invoke(IPC.sales.list, input),
+    get: (input) => ipcRenderer.invoke(IPC.sales.get, input),
+    cancel: (input) => ipcRenderer.invoke(IPC.sales.cancel, input),
+    summary: () => ipcRenderer.invoke(IPC.sales.summary)
+  },
   app: {
     info: () => ipcRenderer.invoke(IPC.app.info)
   }

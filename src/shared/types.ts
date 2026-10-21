@@ -202,3 +202,69 @@ export interface ExpiringBatch {
   costCents: number
   daysUntilExpiry: number
 }
+
+export type PaymentMethod = 'efectivo' | 'tarjeta' | 'transferencia'
+
+export type SaleStatus = 'completada' | 'anulada'
+
+export interface SaleListRecord {
+  id: number
+  number: string
+  clientId: number | null
+  clientName: string | null
+  petId: number | null
+  petName: string | null
+  userId: number | null
+  userName: string | null
+  subtotalCents: number
+  discountCents: number
+  totalCents: number
+  paymentMethod: PaymentMethod
+  status: SaleStatus
+  notes: string | null
+  itemCount: number
+  createdAt: string
+  cancelledAt: string | null
+  cancelledByName: string | null
+  cancelReason: string | null
+}
+
+export interface SaleBatchAllocation {
+  batchId: number
+  batchCode: string | null
+  expiryDate: string | null
+  quantity: number
+}
+
+export interface SaleItemRecord {
+  id: number
+  saleId: number
+  productId: number | null
+  serviceId: number | null
+  description: string
+  productUnit: string | null
+  quantity: number
+  unitPriceCents: number
+  discountCents: number
+  lineTotalCents: number
+  allocations: SaleBatchAllocation[]
+}
+
+export interface SalePaymentRecord {
+  id: number
+  method: PaymentMethod
+  amountCents: number
+  createdAt: string
+}
+
+export interface SaleDetail extends SaleListRecord {
+  items: SaleItemRecord[]
+  payments: SalePaymentRecord[]
+}
+
+export interface SalesSummary {
+  todayCount: number
+  todayTotalCents: number
+  todayAverageCents: number
+  monthTotalCents: number
+}

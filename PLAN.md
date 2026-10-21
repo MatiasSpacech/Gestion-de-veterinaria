@@ -257,7 +257,7 @@ Detalles:
   - Migraciones.
   - Restauración de backups.
 - End-to-end:
-  - Playwright: primer inicio, panel, clientes, mascotas, vacuna con recordatorio, inventario con categoría, producto, entrada y vencimiento, cambio de contraseña y login.
+  - Playwright: primer inicio, panel, clientes, mascotas, vacuna con recordatorio, inventario con categoría, producto, entrada y vencimiento, venta con descuento y anulación con reposición de stock, cambio de contraseña y login.
   - Comando: `npm.cmd run test:e2e`.
 - Manuales:
   - Alta de cliente y mascota.

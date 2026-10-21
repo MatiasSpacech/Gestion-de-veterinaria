@@ -620,11 +620,18 @@ export function registerStockEntry(
   return getProduct(db, input.productId)
 }
 
-function consumeBatchesFefo(
+export interface BatchConsumption {
+  batchId: number
+  batchCode: string | null
+  expiryDate: string | null
+  quantity: number
+}
+
+export function consumeBatchesFefo(
   db: Database.Database,
   productId: number,
   quantity: number
-): void {
+): BatchConsumption[] {
   const batches = db
     .prepare(
       `SELECT * FROM product_batches
@@ -636,6 +643,7 @@ function consumeBatchesFefo(
 
   let remaining = quantity
   const now = new Date().toISOString()
+  const consumed: BatchConsumption[] = []
 
   for (const batch of batches) {
     if (remaining <= 0) {
@@ -649,6 +657,12 @@ function consumeBatchesFefo(
       `UPDATE product_batches SET quantity = ?, updated_at = ? WHERE id = ?`
     ).run(nextQuantity === 0 ? 0 : nextQuantity, now, batch.id)
 
+    consumed.push({
+      batchId: batch.id,
+      batchCode: batch.batch_code,
+      expiryDate: batch.expiry_date,
+      quantity: taken
+    })
     remaining -= taken
   }
 
@@ -658,6 +672,8 @@ function consumeBatchesFefo(
       'El stock por lotes no coincide con el stock del producto'
     )
   }
+
+  return consumed
 }
 
 export function adjustStock(

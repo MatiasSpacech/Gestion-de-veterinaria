@@ -1,10 +1,12 @@
 import type {
+  CancelSaleInput,
   ChangePasswordInput,
   CreateCategoryInput,
   CreateClientInput,
   CreateMedicalRecordInput,
   CreatePetInput,
   CreateProductInput,
+  CreateSaleInput,
   CreateUserInput,
   GetByIdInput,
   ListCategoriesInput,
@@ -13,6 +15,7 @@ import type {
   ListPetsInput,
   ListProductBatchesInput,
   ListProductsInput,
+  ListSalesInput,
   ListStockMovementsInput,
   LoginInput,
   ResetPasswordInput,
@@ -39,6 +42,9 @@ import type {
   ProductBatch,
   ProductCategory,
   ProductRecord,
+  SaleDetail,
+  SaleListRecord,
+  SalesSummary,
   StockMovement,
   UpcomingVaccine,
   UserRecord,
@@ -95,6 +101,13 @@ export const IPC = {
     registerEntry: 'inventory:register-entry',
     adjustStock: 'inventory:adjust-stock',
     exportCsv: 'inventory:export-csv'
+  },
+  sales: {
+    create: 'sales:create',
+    list: 'sales:list',
+    get: 'sales:get',
+    cancel: 'sales:cancel',
+    summary: 'sales:summary'
   },
   app: {
     info: 'app:info'
@@ -179,6 +192,13 @@ export interface VetApi {
     registerEntry: (input: StockEntryInput) => Promise<IpcResult<ProductRecord>>
     adjustStock: (input: StockAdjustmentInput) => Promise<IpcResult<ProductRecord>>
     exportCsv: () => Promise<IpcResult<string | null>>
+  }
+  sales: {
+    create: (input: CreateSaleInput) => Promise<IpcResult<SaleDetail>>
+    list: (input: ListSalesInput) => Promise<IpcResult<SaleListRecord[]>>
+    get: (input: GetByIdInput) => Promise<IpcResult<SaleDetail>>
+    cancel: (input: CancelSaleInput) => Promise<IpcResult<SaleDetail>>
+    summary: () => Promise<IpcResult<SalesSummary>>
   }
   app: {
     info: () => Promise<IpcResult<AppInfo>>

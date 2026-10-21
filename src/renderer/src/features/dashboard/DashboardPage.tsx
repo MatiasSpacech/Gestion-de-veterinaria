@@ -28,7 +28,7 @@ import dayjs from 'dayjs'
 import { useNavigate } from 'react-router-dom'
 import { MODULE_LABELS } from '@shared/roles'
 import { api } from '@renderer/lib/api'
-import { formatDueIn } from '@renderer/lib/format'
+import { formatCurrency, formatDueIn } from '@renderer/lib/format'
 import { useAuth } from '@renderer/lib/use-auth'
 
 interface Metric {
@@ -45,7 +45,7 @@ const METRICS: Metric[] = [
     label: 'Ventas de hoy',
     icon: IconShoppingCart,
     color: 'vetGreen',
-    hint: 'Disponible en la fase de ventas'
+    hint: 'Operaciones completadas'
   },
   {
     key: 'appointments',
@@ -84,7 +84,13 @@ export function DashboardPage(): React.JSX.Element {
     enabled: hasPermission('inventario')
   })
   const upcomingVaccines = vaccinesQuery.data ?? []
+  const salesQuery = useQuery({
+    queryKey: ['sales', 'summary'],
+    queryFn: api.sales.summary,
+    enabled: hasPermission('ventas')
+  })
   const inventorySummary = inventoryQuery.data
+  const salesSummary = salesQuery.data
 
   const greeting = (() => {
     const hour = dayjs().hour()
@@ -144,8 +150,16 @@ export function DashboardPage(): React.JSX.Element {
           const Icon = metric.icon
           const isVaccineMetric = metric.key === 'vaccines'
           const isInventoryMetric = metric.key === 'lowStock'
+          const isSalesMetric = metric.key === 'sales'
           let value = '—'
           let hint = metric.hint
+
+          if (isSalesMetric) {
+            value = salesQuery.isPending ? '—' : String(salesSummary?.todayCount ?? 0)
+            hint = salesSummary
+              ? `${formatCurrency(salesSummary.todayTotalCents)} facturados`
+              : 'Operaciones completadas'
+          }
 
           if (isVaccineMetric) {
             value = vaccinesQuery.isPending ? '—' : String(upcomingVaccines.length)
@@ -317,12 +331,12 @@ export function DashboardPage(): React.JSX.Element {
         variant="light"
         color="vetGreen"
         icon={<IconInfoCircle size={20} />}
-        title="Clientes, mascotas e inventario disponibles"
+        title="Clientes, mascotas, inventario y ventas disponibles"
       >
         <Text size="sm">
-          Ya podés gestionar clientes, mascotas, historial clínico, evolución de peso,
-          recordatorios de vacunas y el inventario con lotes y vencimientos. Ventas y
-          peluquería se incorporan en las próximas fases.
+          Ya podés gestionar clientes, mascotas, historial clínico, inventario con
+          lotes y vencimientos, y registrar ventas con control de stock y anulación.
+          Peluquería y reportes se incorporan en las próximas fases.
         </Text>
       </Alert>
     </Stack>

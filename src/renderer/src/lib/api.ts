@@ -116,6 +116,17 @@ export const api = {
       unwrap(window.api.inventory.adjustStock(input)),
     exportCsv: () => unwrap(window.api.inventory.exportCsv())
   },
+  sales: {
+    create: (input: Parameters<typeof window.api.sales.create>[0]) =>
+      unwrap(window.api.sales.create(input)),
+    list: (input: Parameters<typeof window.api.sales.list>[0]) =>
+      unwrap(window.api.sales.list(input)),
+    get: (input: Parameters<typeof window.api.sales.get>[0]) =>
+      unwrap(window.api.sales.get(input)),
+    cancel: (input: Parameters<typeof window.api.sales.cancel>[0]) =>
+      unwrap(window.api.sales.cancel(input)),
+    summary: () => unwrap(window.api.sales.summary())
+  },
   app: {
     info: () => unwrap(window.api.app.info())
   }

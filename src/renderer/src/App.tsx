@@ -2,8 +2,7 @@ import {
   IconChartBar,
   IconScissors,
   IconSettings,
-  IconShieldLock,
-  IconShoppingCart
+  IconShieldLock
 } from '@tabler/icons-react'
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom'
 import { AppLayout } from './components/AppLayout'
@@ -16,6 +15,7 @@ import { InventoryPage } from './features/inventory/InventoryPage'
 import { PetDetailPage } from './features/pets/PetDetailPage'
 import { PetsPage } from './features/pets/PetsPage'
 import { PlaceholderPage } from './features/placeholder/PlaceholderPage'
+import { SalesPage } from './features/sales/SalesPage'
 import { useAuth } from './lib/use-auth'
 
 function SetupRoute(): React.JSX.Element {
@@ -74,17 +74,7 @@ export default function App(): React.JSX.Element {
           <Route path="mascotas" element={<PetsPage />} />
           <Route path="mascotas/:id" element={<PetDetailPage />} />
           <Route path="inventario" element={<InventoryPage />} />
-          <Route
-            path="ventas"
-            element={
-              <PlaceholderPage
-                title="Ventas"
-                description="Punto de venta con control de stock, métodos de pago, historial y anulación de operaciones."
-                phase="Fase 4"
-                icon={IconShoppingCart}
-              />
-            }
-          />
+          <Route path="ventas" element={<SalesPage />} />
           <Route
             path="peluqueria"
             element={

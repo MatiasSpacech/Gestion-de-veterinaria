@@ -198,6 +198,54 @@ try {
     .getByText('1', { exact: true })
     .waitFor()
 
+  await win
+    .locator('.mantine-NavLink-root')
+    .filter({ hasText: /^Ventas$/ })
+    .click()
+  await win.getByRole('heading', { name: 'Ventas', level: 2 }).waitFor()
+
+  await win
+    .getByPlaceholder('Buscar producto por nombre, SKU o código')
+    .fill('Alimento Premium E2E')
+  await win
+    .getByText('Alimento Premium E2E', { exact: true })
+    .waitFor()
+  await win.getByRole('button', { name: 'Agregar' }).click()
+  await win.getByRole('combobox', { name: 'Cliente' }).click()
+  await win.getByRole('option', { name: /Juan Pérez/ }).click()
+  await win.getByLabel('Descuento').fill('100')
+  await win.getByRole('button', { name: 'Registrar venta' }).click()
+  await win.getByText('Venta registrada').waitFor()
+  const saleDialog = win.getByRole('dialog')
+  await saleDialog.getByText('Venta V-000001', { exact: true }).waitFor()
+  await saleDialog.getByText('Alimento Premium E2E', { exact: true }).waitFor()
+  await saleDialog.getByRole('button', { name: 'Cerrar' }).click()
+
+  await win.getByRole('tab', { name: 'Historial' }).click()
+  const saleRow = win.getByRole('row', { name: /V-000001/ })
+  await saleRow.waitFor()
+  await saleRow.getByText('Completada', { exact: true }).waitFor()
+  await saleRow.click()
+  await win.getByText('Venta V-000001', { exact: true }).waitFor()
+  await win.getByRole('button', { name: 'Anular venta' }).click()
+  const cancelDialog = win
+    .getByRole('dialog')
+    .filter({ hasText: 'Anular venta V-000001' })
+  await cancelDialog.getByLabel('Motivo de la anulación').fill('Prueba E2E de anulación')
+  await cancelDialog.getByRole('button', { name: 'Anular venta' }).click()
+  await win.getByText('Venta anulada').waitFor()
+  await saleRow.getByText('Anulada', { exact: true }).waitFor()
+
+  await win
+    .locator('.mantine-NavLink-root')
+    .filter({ hasText: /^Inventario$/ })
+    .click()
+  await win.getByRole('heading', { name: 'Inventario', level: 2 }).waitFor()
+  await win
+    .getByRole('row', { name: /Alimento Premium E2E/ })
+    .getByText('10 unidad', { exact: true })
+    .waitFor()
+
   await win.getByRole('button', { name: /Ana Test/ }).click()
   await win.getByRole('menuitem', { name: 'Cambiar contraseña' }).click()
   await win.getByLabel('Contraseña actual').fill('clave12345')
@@ -223,7 +271,7 @@ try {
 
   passed = true
   console.log(
-    'E2E smoke OK: setup, dashboard, clientes, mascotas, vacuna, recordatorios, inventario, contraseña y login.'
+    'E2E smoke OK: setup, dashboard, clientes, mascotas, vacuna, recordatorios, inventario, venta, anulación, contraseña y login.'
   )
 } finally {
   await app.close().catch(() => {})
