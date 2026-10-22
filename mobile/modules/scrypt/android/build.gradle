@@ -1,0 +1,33 @@
+plugins {
+  id 'com.android.library'
+  id 'expo-module-gradle-plugin'
+}
+
+group = 'com.vetgestion.mobile.scrypt'
+version = '1.0.0'
+
+expoModule {
+  v2 true
+}
+
+android {
+  namespace "com.vetgestion.mobile.scrypt"
+
+  defaultConfig {
+    minSdkVersion 24
+  }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_17
+    targetCompatibility JavaVersion.VERSION_17
+  }
+
+  kotlinOptions {
+    jvmTarget = "17"
+  }
+}
+
+dependencies {
+  implementation "org.jetbrains.kotlin:kotlin-stdlib:2.0.21"
+  testImplementation 'junit:junit:4.13.2'
+}

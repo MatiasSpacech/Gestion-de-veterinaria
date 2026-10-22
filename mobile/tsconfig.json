@@ -1,0 +1,28 @@
+{
+  "extends": "./node_modules/expo/tsconfig.base.json",
+  "compilerOptions": {
+    "strict": true,
+    "paths": {
+      "@shared/*": [
+        "../src/shared/*"
+      ],
+      "@desktop/*": [
+        "../src/main/*"
+      ]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "../src/shared/**/*.ts",
+    "../src/main/db/migrations.ts",
+    "../src/main/db/seed.ts",
+    "../src/main/services/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "android",
+    "../src/shared/**/*.test.ts",
+    "../src/main/services/**/*.test.ts"
+  ]
+}

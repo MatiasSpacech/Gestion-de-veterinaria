@@ -1,0 +1,6 @@
+{
+  "platforms": ["android"],
+  "android": {
+    "modules": ["com.vetgestion.mobile.scrypt.ScryptModule"]
+  }
+}
