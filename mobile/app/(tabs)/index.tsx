@@ -39,7 +39,7 @@ export default function HomeScreen() {
             variant="bodyMedium"
             style={{ color: theme.colors.onSurfaceVariant }}
           >
-            Fase 1 · Navegación y diseño base
+            Sesión, permisos y backups listos
           </Text>
         </View>
       </View>

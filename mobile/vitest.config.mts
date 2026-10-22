@@ -7,7 +7,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@shared': `${workspaceRoot}src/shared`,
-      '@desktop': `${workspaceRoot}src/main`
+      '@desktop': `${workspaceRoot}src/main`,
+      '@renderer': `${workspaceRoot}src/renderer/src`
     }
   },
   test: {

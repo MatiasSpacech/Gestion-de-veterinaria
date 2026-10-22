@@ -11,6 +11,7 @@ import {
 import type { LoginInput, SetupAdminInput } from '@shared/schemas'
 import type { AuthUser } from '@shared/types'
 
+import { runAutomaticBackup } from './backups'
 import {
   createFirstAdmin,
   isDatabaseInitialized,
@@ -40,6 +41,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
     try {
       setNeedsSetup(!isDatabaseInitialized())
+
+      if (isDatabaseInitialized()) {
+        runAutomaticBackup()
+      }
     } catch {
       setNeedsSetup(false)
     } finally {

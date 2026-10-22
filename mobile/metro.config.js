@@ -52,6 +52,16 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
     return { filePath: desktopPath, type: 'sourceFile' }
   }
 
+  const rendererPath = resolveSourceAlias(
+    moduleName,
+    '@renderer',
+    path.resolve(workspaceRoot, 'src/renderer/src')
+  )
+
+  if (rendererPath) {
+    return { filePath: rendererPath, type: 'sourceFile' }
+  }
+
   if (defaultResolveRequest) {
     return defaultResolveRequest(context, moduleName, platform)
   }

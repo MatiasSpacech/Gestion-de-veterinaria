@@ -53,10 +53,10 @@ export default function MoreScreen() {
           description="Disponible en la Fase 4"
         />
         <ListRow
-          disabled
           icon="archive-outline"
           title="Backups y restauración"
-          description="Disponible en la Fase 5"
+          description="Copias de seguridad de la base local"
+          onPress={() => router.push('/backups')}
         />
       </Card>
 

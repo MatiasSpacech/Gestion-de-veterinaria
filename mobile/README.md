@@ -4,7 +4,8 @@ Aplicación Android de VetGestión para uso interno del local. Es un proyecto in
 propio `package.json`, su propio lockfile y no modifica la app de escritorio.
 
 El plan completo está en [PLAN.md](./PLAN.md). Los resultados están en
-[RESULTS_PHASE_0.md](./RESULTS_PHASE_0.md) y [RESULTS_PHASE_1.md](./RESULTS_PHASE_1.md).
+[RESULTS_PHASE_0.md](./RESULTS_PHASE_0.md), [RESULTS_PHASE_1.md](./RESULTS_PHASE_1.md) y
+[RESULTS_PHASE_2.md](./RESULTS_PHASE_2.md).
 
 ## Requisitos
 
@@ -126,6 +127,7 @@ mobile/
     (tabs)/                    # Inicio, Agenda, Vender, Clientes y Más
     login.tsx                  # Inicio de sesión
     setup.tsx                  # Primer inicio: creación del administrador
+    backups.tsx                # Backups de la base local
     diagnostico.tsx            # Autodiagnóstico de la Fase 0
   modules/scrypt/              # Módulo nativo de Expo (Kotlin) para node:crypto
   scripts/dev-android.ps1      # Emulador + Metro + build + install + launch
@@ -135,8 +137,12 @@ mobile/
     data/
       db.ts                    # Adaptador expo-sqlite
       password.ts              # Hash de contraseñas compatible con el escritorio
+      backups.ts               # Backups móviles con la API online de expo-sqlite
+      backup-format.ts         # Formato de archivo y retención (puro, testeado)
       controllers/             # Sesión, permisos, validación y auditoría
       testing/database.ts      # Adaptador de pruebas sobre node:sqlite
+      session-provider.tsx     # Sesión en memoria para React
+    lib/format.ts              # Formatos propios (tamaño de archivo)
     shims/node-crypto.ts       # Shim de node:crypto sobre modules/scrypt
     spike/phase0.ts            # Autodiagnóstico de la Fase 0
     theme/                     # Tema, tokens y layout responsivo
@@ -153,9 +159,9 @@ Fase 1 completada: navegación con Expo Router, tema de React Native Paper con l
 escritorio, kit de componentes táctiles de 48 dp, layout de teléfono con barra inferior y de tablet
 con barra lateral, development build con `expo-dev-client` y AVD de tablet.
 
-Fase 2 en curso: sesión en memoria, permisos por rol, validación con los esquemas Zod del
-escritorio, auditoría de actividad, pantallas de primer inicio, login y logout, y tests de los
-controladores sobre `node:sqlite`.
+Fase 2 completada: sesión en memoria, permisos por rol, validación con los esquemas Zod del
+escritorio, auditoría de actividad, pantallas de primer inicio, login y logout, backups móviles con
+el backup online de `expo-sqlite` y pruebas de compatibilidad con el escritorio.
 
-Detalles y mediciones en [RESULTS_PHASE_0.md](./RESULTS_PHASE_0.md) y
-[RESULTS_PHASE_1.md](./RESULTS_PHASE_1.md).
+Detalles y mediciones en [RESULTS_PHASE_0.md](./RESULTS_PHASE_0.md),
+[RESULTS_PHASE_1.md](./RESULTS_PHASE_1.md) y [RESULTS_PHASE_2.md](./RESULTS_PHASE_2.md).

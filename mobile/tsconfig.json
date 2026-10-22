@@ -8,6 +8,9 @@
       ],
       "@desktop/*": [
         "../src/main/*"
+      ],
+      "@renderer/*": [
+        "../src/renderer/src/*"
       ]
     }
   },
@@ -17,7 +20,8 @@
     "../src/shared/**/*.ts",
     "../src/main/db/migrations.ts",
     "../src/main/db/seed.ts",
-    "../src/main/services/**/*.ts"
+    "../src/main/services/**/*.ts",
+    "../src/renderer/src/lib/format.ts"
   ],
   "exclude": [
     "node_modules",

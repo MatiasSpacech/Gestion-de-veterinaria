@@ -206,17 +206,24 @@ La app semonte con Expo Router sobre un grupo de pestañas con las cinco seccion
 objetivos táctiles de 48 dp. El development build usa `expo-dev-client` para recargar el código
 sin recompilar.
 
-### Fase 2: capa de datos — en curso
+### Fase 2: capa de datos — completada el 22/10/2026
+
+Resultados en `RESULTS_PHASE_2.md`.
 
 - Adaptador definitivo. — Hecho
 - Controladores con sesión, permisos, Zod y auditoría. — Hecho
 - Autenticación. — Hecho
-- Backups móviles. — Pendiente
-- Pruebas de compatibilidad con el escritorio. — Pendiente
+- Backups móviles. — Hecho
+- Pruebas de compatibilidad con el escritorio. — Hecho
+
+Criterio de aceptación: cumplido. La app pide usuario y contraseña, valida con los esquemas Zod
+del escritorio, aplica los permisos del rol, deja rastro en la auditoría y permite crear, listar,
+restaurar y borrar backups de la base local con el mismo formato de archivo que la app de
+escritorio.
 
 Los controladores viven en `mobile/src/data/controllers` y reciben la base como argumento, con
-`mobile/src/data/testing/database.ts` como adaptador de pruebas sobre `node:sqlite`. La sesión es
-solo en memoria y las pantallas de primer inicio, login y logout ya están conectadas.
+`mobile/src/data/testing/database.ts` como adaptador de pruebas sobre `node:sqlite`. Los backups
+usan el backup online de `expo-sqlite` y la carpeta privada de la app.
 
 ### Fase 3: operación diaria
 

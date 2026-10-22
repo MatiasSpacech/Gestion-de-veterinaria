@@ -81,23 +81,53 @@ class ExpoSqliteAdapter {
 }
 
 let database: Database.Database | null = null
+let sqlite: SQLiteDatabase | null = null
 
 export function getMobileDatabase(): Database.Database {
   if (database) {
     return database
   }
 
-  const sqlite = openDatabaseSync(DATABASE_NAME)
-  sqlite.execSync('PRAGMA foreign_keys = ON')
-  sqlite.execSync('PRAGMA busy_timeout = 5000')
-  sqlite.execSync('PRAGMA journal_mode = WAL')
-  sqlite.execSync('PRAGMA synchronous = NORMAL')
+  const opened = openDatabaseSync(DATABASE_NAME)
+  opened.execSync('PRAGMA foreign_keys = ON')
+  opened.execSync('PRAGMA busy_timeout = 5000')
+  opened.execSync('PRAGMA journal_mode = WAL')
+  opened.execSync('PRAGMA synchronous = NORMAL')
 
-  const db = new ExpoSqliteAdapter(sqlite) as unknown as Database.Database
+  const adapter = new ExpoSqliteAdapter(opened) as unknown as Database.Database
 
-  runMigrations(db)
-  seedDatabase(db)
+  runMigrations(adapter)
+  seedDatabase(adapter)
 
-  database = db
-  return db
+  database = adapter
+  sqlite = opened
+
+  return adapter
+}
+
+/**
+ * Conexión nativa de SQLite, necesaria para el backup online de `expo-sqlite`.
+ */
+export function getMobileSqlite(): SQLiteDatabase {
+  if (!sqlite) {
+    getMobileDatabase()
+  }
+
+  return sqlite as SQLiteDatabase
+}
+
+/**
+ * Ruta absoluta del archivo de base de datos, para poder reemplazarlo al restaurar.
+ */
+export function getDatabasePath(): string {
+  return getMobileSqlite().databasePath
+}
+
+export function closeMobileDatabase(): void {
+  if (sqlite) {
+    sqlite.closeSync()
+  }
+
+  sqlite = null
+  database = null
 }

@@ -24,8 +24,8 @@ interface TestDatabase {
  * (`prepare().get/all/run`, `exec()` y `transaction()`) sobre `node:sqlite`,
  * que viene incluido en Node 24 y no necesita dependencias extra.
  */
-export function createTestDatabase(): Database.Database {
-  const sqlite = new DatabaseSync(':memory:')
+export function createTestDatabase(filePath = ':memory:'): Database.Database {
+  const sqlite = new DatabaseSync(filePath)
 
   let depth = 0
 
