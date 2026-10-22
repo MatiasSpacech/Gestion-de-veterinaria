@@ -2,7 +2,7 @@ import { existsSync, mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import type Database from 'better-sqlite3'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createDatabase } from '@main/db/connection'
 import { listActivity } from './activity'
 import {
@@ -49,6 +49,19 @@ describe('backups', () => {
 
     const automatic = await runAutomaticBackup(database, backupFolder)
     expect(automatic).toBeNull()
+  })
+
+  it('no repite el backup automático si ya se hizo hoy por la noche', async () => {
+    vi.useFakeTimers({ toFake: ['Date'], now: new Date(2026, 9, 21, 22, 0) })
+
+    try {
+      await createBackup(database, backupFolder, null)
+      const automatic = await runAutomaticBackup(database, backupFolder)
+
+      expect(automatic).toBeNull()
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('respeta la retención configurada', async () => {

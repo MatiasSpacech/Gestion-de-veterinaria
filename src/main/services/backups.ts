@@ -12,12 +12,25 @@ function timestampForFile(date = new Date()): string {
   return date.toISOString().replaceAll(':', '-').replaceAll('.', '-')
 }
 
-function todayPrefix(): string {
-  const date = new Date()
+function localDateKey(date: Date): string {
   const year = date.getFullYear()
   const month = String(date.getMonth() + 1).padStart(2, '0')
   const day = String(date.getDate()).padStart(2, '0')
   return `${year}-${month}-${day}`
+}
+
+function backupWasMadeToday(lastBackupAt: string): boolean {
+  if (lastBackupAt === '') {
+    return false
+  }
+
+  const lastBackup = new Date(lastBackupAt)
+
+  if (Number.isNaN(lastBackup.getTime())) {
+    return false
+  }
+
+  return localDateKey(lastBackup) === localDateKey(new Date())
 }
 
 export function resolveBackupFolder(
@@ -103,7 +116,7 @@ export async function runAutomaticBackup(
     return null
   }
 
-  if (settings.lastBackupAt.startsWith(todayPrefix())) {
+  if (backupWasMadeToday(settings.lastBackupAt)) {
     return null
   }
 
