@@ -4,6 +4,7 @@ param(
   [string]$SdkRoot = 'C:\AndroidSdk',
   [string]$JavaHome = 'C:\Program Files\Eclipse Adoptium\jdk-21.0.3.9-hotspot',
   [int]$MetroPort = 8081,
+  [string]$Architectures = 'x86_64',
   [switch]$SkipMetro,
   [switch]$SkipBuild,
   [switch]$SkipInstall
@@ -92,7 +93,7 @@ if ($devices.Count -eq 0) {
     throw "No se encontro el emulador en $emulator"
   }
 
-  Start-Process -FilePath $emulator -ArgumentList '-avd', $Avd, '-no-boot-anim' -WorkingDirectory (Split-Path $emulator) -RedirectStandardOutput $emulatorLog -RedirectStandardError "$emulatorLog.error" -WindowStyle Hidden
+  Start-Process -FilePath $emulator -ArgumentList '-avd', $Avd, '-no-boot-anim', '-gpu', 'swiftshader_indirect' -WorkingDirectory (Split-Path $emulator) -RedirectStandardOutput $emulatorLog -RedirectStandardError "$emulatorLog.error" -WindowStyle Hidden
 
   $deadline = (Get-Date).AddMinutes(5)
 
@@ -162,24 +163,25 @@ if (-not $SkipBuild) {
     & $npx expo prebuild --platform android --no-install
   }
 
-  $localProperties = Join-Path $androidRoot 'local.properties'
+  Write-Step 'Preparando el entorno de build (rutas largas y ninja)'
+  & powershell -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'setup-android.ps1') -SdkRoot $SdkRoot
 
-  if (-not (Test-Path $localProperties)) {
-    Write-Step "Creando local.properties con sdk.dir"
+  $gradleProperties = Join-Path $androidRoot 'gradle.properties'
 
-    $sdkDir = $SdkRoot.Replace('\', '\\').Replace(':', '\:')
-    Set-Content -LiteralPath $localProperties -Value "sdk.dir=$sdkDir" -Encoding ASCII
+  if (Test-Path $gradleProperties) {
+    $content = Get-Content -LiteralPath $gradleProperties -Raw
+    $content = [regex]::Replace($content, '(?m)^reactNativeArchitectures=.*$', "reactNativeArchitectures=$Architectures")
+    Set-Content -LiteralPath $gradleProperties -Value $content -Encoding UTF8 -NoNewline
+    Write-Step "Arquitecturas nativas: $Architectures"
   }
 
-  if (-not (Test-Path $apkPath)) {
-    Write-Step 'Compilando el APK de debug (puede tardar varios minutos)'
+  Write-Step 'Compilando el APK de debug (incremental si no hubo cambios)'
 
-    $env:JAVA_HOME = $JavaHome
-    $env:ANDROID_HOME = $SdkRoot
-    $env:ANDROID_SDK_ROOT = $SdkRoot
+  $env:JAVA_HOME = $JavaHome
+  $env:ANDROID_HOME = $SdkRoot
+  $env:ANDROID_SDK_ROOT = $SdkRoot
 
-    & $gradlew assembleDebug --console=plain
-  }
+  & $gradlew assembleDebug --console=plain --no-daemon
 }
 
 if (-not $SkipInstall) {
@@ -194,7 +196,17 @@ if (-not $SkipInstall) {
 
 Write-Step 'Abriendo la app'
 
-& $adb -s $serial shell am start -n "$Package/.MainActivity" | Write-Host
+$appConfig = Get-Content (Join-Path $projectRoot 'app.json') -Raw | ConvertFrom-Json
+$packageJson = Get-Content (Join-Path $projectRoot 'package.json') -Raw | ConvertFrom-Json
+$hasDevClient = $null -ne $packageJson.dependencies.'expo-dev-client'
+
+if ($hasDevClient) {
+  $devClientUrl = "exp+$($appConfig.expo.slug)://expo-development-client/?url=http%3A%2F%2Flocalhost%3A$MetroPort"
+  & $adb -s $serial shell am start -a android.intent.action.VIEW -d $devClientUrl | Write-Host
+}
+else {
+  & $adb -s $serial shell am start -n "$Package/.MainActivity" | Write-Host
+}
 
 Write-Step "Listo. La app esta corriendo en $serial"
 Write-Step "Log de Metro: $metroLog"

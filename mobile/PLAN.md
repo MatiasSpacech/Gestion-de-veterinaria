@@ -186,22 +186,37 @@ El riesgo del scrypt quedó resuelto en esta fase con el módulo nativo `modules
 tarda 395 ms en el emulador (contra 5,1 a 5,9 segundos en JavaScript) y los hashes coinciden con los
 del escritorio, verificado por un test JVM contra el mismo vector de Node.
 
-### Fase 1: base móvil
+### Fase 1: base móvil — completada el 22/10/2026
 
-- Expo Router.
-- Tema y componentes táctiles.
-- Layout para teléfono y tablet.
-- Lint, tests y scripts propios.
-- AVD de tablet.
-- Development build.
+Resultados y capturas en `RESULTS_PHASE_1.md`.
 
-### Fase 2: capa de datos
+- Expo Router. — Hecho
+- Tema y componentes táctiles. — Hecho
+- Layout para teléfono y tablet. — Hecho
+- Lint, tests y scripts propios. — Hecho
+- AVD de tablet. — Hecho
+- Development build. — Hecho
 
-- Adaptador definitivo.
-- Controladores con sesión, permisos, Zod y auditoría.
-- Autenticación.
-- Backups móviles.
-- Pruebas de compatibilidad con el escritorio.
+Criterio de aceptación: cumplido. La app abre en el development build, inicia sesión con un
+usuario real de la base local y muestra la navegación inferior en teléfono y la barra lateral en
+tablet, con typecheck, lint y tests aprobados.
+
+La app semonte con Expo Router sobre un grupo de pestañas con las cinco secciones acordadas
+(Inicio, Agenda, Vender, Clientes y Más), React Native Paper con el tema verde del escritorio y
+objetivos táctiles de 48 dp. El development build usa `expo-dev-client` para recargar el código
+sin recompilar.
+
+### Fase 2: capa de datos — en curso
+
+- Adaptador definitivo. — Hecho
+- Controladores con sesión, permisos, Zod y auditoría. — Hecho
+- Autenticación. — Hecho
+- Backups móviles. — Pendiente
+- Pruebas de compatibilidad con el escritorio. — Pendiente
+
+Los controladores viven en `mobile/src/data/controllers` y reciben la base como argumento, con
+`mobile/src/data/testing/database.ts` como adaptador de pruebas sobre `node:sqlite`. La sesión es
+solo en memoria y las pantallas de primer inicio, login y logout ya están conectadas.
 
 ### Fase 3: operación diaria
 
@@ -245,7 +260,8 @@ del escritorio, verificado por un test JVM contra el mismo vector de Node.
 - Los backups de Android y el acceso a carpetas requieren usar las APIs de almacenamiento.
 - Las fotos no están incluidas en el backup de base de datos.
 - La importación de datos de escritorio debe validar versión de esquema.
-- No se dispone de un AVD de tablet; se creará en Fase 1.
+- La compilación nativa de React Native genera rutas de codegen de más de 260 caracteres en esta carpeta del proyecto. Resuelto en la Fase 1 habilitando las rutas largas de Windows y usando ninja 1.12; ver `mobile/scripts/setup-android.ps1`.
+- `react-native-reanimated` y `react-native-worklets` se instalan como pares opcionales de `expo-router` y compilan con CMake. La app no los usa, así que `mobile/.npmrc` los omite con `omit=peer` y evita ese build.
 
 ## Supuestos
 
