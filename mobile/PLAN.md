@@ -225,13 +225,24 @@ Los controladores viven en `mobile/src/data/controllers` y reciben la base como 
 `mobile/src/data/testing/database.ts` como adaptador de pruebas sobre `node:sqlite`. Los backups
 usan el backup online de `expo-sqlite` y la carpeta privada de la app.
 
-### Fase 3: operación diaria
+### Fase 3: operación diaria — completada el 22/10/2026
 
-- Panel.
-- Clientes, mascotas e historial.
-- Inventario.
-- Ventas.
-- Peluquería.
+Resultados en `RESULTS_PHASE_3.md`.
+
+- Panel. — Hecho
+- Clientes, mascotas e historial. — Hecho
+- Inventario. — Hecho
+- Ventas. — Hecho
+- Peluquería. — Hecho
+
+Criterio de aceptación: cumplido. El panel muestra ventas del día, turnos, stock bajo y vacunas
+próximas con los datos reales de la base local. Desde el mismo dispositivo se cargan clientes,
+stock, ventas y estados de turnos, usando los servicios del escritorio con validación, permisos y
+auditoría.
+
+La lógica de cada módulo vive en `mobile/src/features` y llama a los servicios del escritorio con
+los esquemas Zod compartidos. Cada servicio acepta la base como argumento, con lo que queda
+testeable con el adaptador de `node:sqlite`.
 
 ### Fase 4: administración e integraciones
 

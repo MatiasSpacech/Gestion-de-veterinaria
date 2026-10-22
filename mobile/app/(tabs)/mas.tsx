@@ -38,6 +38,24 @@ export default function MoreScreen() {
 
       <Card mode="elevated">
         <Text variant="labelLarge" style={styles.sectionTitle}>
+          Operación
+        </Text>
+        <ListRow
+          icon="cube-outline"
+          title="Inventario"
+          description="Productos, stock y alertas"
+          onPress={() => router.push('/inventario')}
+        />
+        <ListRow
+          icon="receipt-outline"
+          title="Historial de ventas"
+          description="Ventas registradas y anulaciones"
+          onPress={() => router.push('/ventas')}
+        />
+      </Card>
+
+      <Card mode="elevated">
+        <Text variant="labelLarge" style={styles.sectionTitle}>
           Administración
         </Text>
         <ListRow

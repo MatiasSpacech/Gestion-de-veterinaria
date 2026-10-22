@@ -128,6 +128,10 @@ mobile/
     login.tsx                  # Inicio de sesión
     setup.tsx                  # Primer inicio: creación del administrador
     backups.tsx                # Backups de la base local
+    clientes/[id].tsx          # Ficha del cliente con mascotas e historial
+    clientes/nuevo.tsx         # Alta de cliente
+    inventario.tsx             # Productos, stock y carga de mercadería
+    ventas.tsx                 # Historial de ventas y anulaciones
     diagnostico.tsx            # Autodiagnóstico de la Fase 0
   modules/scrypt/              # Módulo nativo de Expo (Kotlin) para node:crypto
   scripts/dev-android.ps1      # Emulador + Metro + build + install + launch
@@ -142,6 +146,12 @@ mobile/
       controllers/             # Sesión, permisos, validación y auditoría
       testing/database.ts      # Adaptador de pruebas sobre node:sqlite
       session-provider.tsx     # Sesión en memoria para React
+    features/                  # Lógica de la operación diaria por módulo
+      dashboard/               # Panel del local
+      clients/                 # Clientes, mascotas e historial
+      inventory/               # Productos y stock
+      sales/                   # Ventas y anulaciones
+      grooming/                # Turnos y cobro
     lib/format.ts              # Formatos propios (tamaño de archivo)
     shims/node-crypto.ts       # Shim de node:crypto sobre modules/scrypt
     spike/phase0.ts            # Autodiagnóstico de la Fase 0
@@ -163,5 +173,10 @@ Fase 2 completada: sesión en memoria, permisos por rol, validación con los esq
 escritorio, auditoría de actividad, pantallas de primer inicio, login y logout, backups móviles con
 el backup online de `expo-sqlite` y pruebas de compatibilidad con el escritorio.
 
+Fase 3 completada: panel con ventas, turnos, stock bajo y vacunas próximas; clientes con su ficha
+de mascotas e historial; inventario con carga de stock; punto de venta con carrito, descuento y
+medio de pago, más historial y anulación de ventas; agenda del día con estados y cobro de turnos.
+
 Detalles y mediciones en [RESULTS_PHASE_0.md](./RESULTS_PHASE_0.md),
-[RESULTS_PHASE_1.md](./RESULTS_PHASE_1.md) y [RESULTS_PHASE_2.md](./RESULTS_PHASE_2.md).
+[RESULTS_PHASE_1.md](./RESULTS_PHASE_1.md), [RESULTS_PHASE_2.md](./RESULTS_PHASE_2.md) y
+[RESULTS_PHASE_3.md](./RESULTS_PHASE_3.md).
