@@ -35,13 +35,22 @@ El panel de Inicio muestra, con datos reales de la base local:
 
 ## Verificado en el emulador
 
-1. El panel muestra los valores reales: con la base de la Fase 0 más la venta nueva, muestra
-   1 venta de hoy por $ 1.500,00.
-2. Desde Vender se agregó el producto al carrito, se cobró en efectivo y se registró la venta
-   `V-000014`, el número continúa la serie del escritorio.
+1. El panel muestra los valores reales: con la base de la Fase 0 más las ventas nuevas, muestra
+   las ventas del día por $ 1.500,00.
+2. Desde Vender se agregó el producto al carrito y se cobró en efectivo. La venta `V-000014` se
+   registró y el número continúa la serie del escritorio.
 3. La venta bajó el stock del producto de 5 a 4 y el panel y el inventario lo reflejan.
 4. Se creó el cliente `Maria Gomez` desde Clientes → Nuevo y la app saltó a la ficha del cliente.
 5. El inventario lista el producto con su SKU, su precio, el stock actual y la acción de carga.
+6. Desde la ficha de Maria se agregó la mascota `Luna` (perro, caniche, hembra, 8,5 kg) y la app
+   volvió a la ficha con la mascota listada y su peso inicial en el historial.
+7. Desde el historial de Luna se agregó la vacuna `Antirrabica` con próxima dosis `22/10/2027`; el
+   registro aparece en la ficha y el subtítulo muestra la próxima vacuna.
+8. En Vender se asoció `Maria Gomez · Luna` a la venta `V-000015`; el historial de ventas muestra el
+   cliente en la fila.
+9. El alta de turnos muestra la búsqueda de clientes, las mascotas del cliente, los servicios y la
+   fecha y hora. En el emulador no hay peluqueros cargados, así que la pantalla guía a cargarlos
+   desde el escritorio; el alta quedó cubierta por los tests.
 
 ## Pruebas automáticas
 
@@ -49,20 +58,26 @@ El panel de Inicio muestra, con datos reales de la base local:
 | --- | --- |
 | `npm run typecheck` en `mobile/` | OK, sin errores |
 | `npm run lint` en `mobile/` | OK, sin errores |
-| `npm test` en `mobile/` | 37 tests aprobados |
+| `npm test` en `mobile/` | 40 tests aprobados |
 
 `mobile/src/features/operations.test.ts` cubre el alta de clientes, el rechazo de clientes con
-nombre inválido, la entrada de stock y el registro de una venta con su historial.
+nombre inválido, la entrada de stock, el registro de una venta con su historial, el alta de mascotas
+con su peso inicial, los registros del historial clínico, el alta de turnos con peluquero y
+servicios, y la asociación de cliente y mascota a la venta.
+
+## Cierre de la fase
+
+La operación diaria queda cubierta de punta a punta en el dispositivo:
+
+- Ficha del cliente con alta de mascotas y de registros de historial (consulta, vacuna,
+  desparasitación, cirugía, tratamiento, nota y peso).
+- Agenda con alta de turnos, cambio de estado y cobro.
+- Punto de venta con cliente y mascota opcionales, descuento y medio de pago.
+- Panel con el resumen del día.
 
 ## Pendiente para las fases siguientes
 
-- association del cliente y la mascota a la venta y al turno desde el punto de venta.
-- Alta de mascotas y de historial clínico desde la ficha del cliente.
-- Alta de turnos desde la agenda.
-- Lectura de código de barras y cámara (Fase 4).
-
-## Próximos pasos
-
-1. Fase 4: usuarios y configuración, cámara y códigos de barras, notificaciones, WhatsApp,
-   PDF/CSV y bloqueo biométrico.
-2. Fase 5: importación de backups de escritorio, pruebas E2E con Maestro y APK firmado.
+- Cámara y lectura de códigos de barras (Fase 4).
+- Notificaciones locales, WhatsApp, PDF/CSV y bloqueo biométrico (Fase 4).
+- Alta de peluqueros y de usuarios desde el móvil (Fase 4).
+- Importación de backups del escritorio, pruebas E2E y APK firmado (Fase 5).

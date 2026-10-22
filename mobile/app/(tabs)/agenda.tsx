@@ -1,9 +1,11 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useFocusEffect, useRouter } from 'expo-router'
+import { useCallback, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Button, Chip, Dialog, Portal, Text, useTheme } from 'react-native-paper'
 import { formatCurrency } from '@renderer/lib/format'
 import type { AppointmentStatus, PaymentMethod } from '@shared/types'
 
+import { AppButton } from '../../src/components/AppButton'
 import { EmptyState } from '../../src/components/EmptyState'
 import { Screen } from '../../src/components/Screen'
 import { SectionCard } from '../../src/components/SectionCard'
@@ -29,6 +31,7 @@ const PAYMENT_METHODS: readonly { value: PaymentMethod; label: string }[] = [
 ]
 
 export default function AgendaScreen() {
+  const router = useRouter()
   const theme = useTheme()
   const [appointments, setAppointments] = useState<AppointmentRecord[]>([])
   const [selected, setSelected] = useState<AppointmentRecord | null>(null)
@@ -41,9 +44,11 @@ export default function AgendaScreen() {
     setAppointments(listDayAppointments())
   }, [])
 
-  useEffect(() => {
-    load()
-  }, [load])
+  useFocusEffect(
+    useCallback(() => {
+      load()
+    }, [load])
+  )
 
   const handleStatus = () => {
     if (!selected) {
@@ -85,6 +90,13 @@ export default function AgendaScreen() {
 
   return (
     <Screen title="Agenda" subtitle="Turnos, estados y cobro de peluquería.">
+      <AppButton
+        icon="calendar-plus"
+        onPress={() => router.push('/turnos/nuevo')}
+      >
+        Nuevo turno
+      </AppButton>
+
       {appointments.length === 0 ? (
         <EmptyState
           icon="calendar-outline"

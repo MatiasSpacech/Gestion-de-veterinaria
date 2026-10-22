@@ -1,19 +1,31 @@
 import type Database from 'better-sqlite3'
 import {
   chargeAppointment,
+  createAppointment,
   getAppointmentSummary,
   listAppointments,
+  listGroomers,
+  listServices,
   setAppointmentStatus
 } from '@desktop/services/grooming'
 import {
   chargeAppointmentSchema,
+  createAppointmentSchema,
   listAppointmentsSchema,
+  listGroomersSchema,
+  listServicesSchema,
   setAppointmentStatusSchema,
   type ChargeAppointmentInput,
+  type CreateAppointmentInput,
   type ListAppointmentsInput,
   type SetAppointmentStatusInput
 } from '@shared/schemas'
-import type { AppointmentRecord, AppointmentSummary } from '@shared/types'
+import type {
+  AppointmentRecord,
+  AppointmentSummary,
+  GroomerRecord,
+  ServiceRecord
+} from '@shared/types'
 
 import { recordActivity } from '../../data/controllers/audit'
 import { requirePermission } from '../../data/controllers/permissions'
@@ -43,6 +55,40 @@ export function getAppointmentsOverview(
   db: Database.Database = getMobileDatabase()
 ): AppointmentSummary {
   return getAppointmentSummary(db)
+}
+
+export function listGroomingServices(
+  db: Database.Database = getMobileDatabase()
+): ServiceRecord[] {
+  return listServices(db, parseInput(listServicesSchema, { includeInactive: false }))
+}
+
+export function listActiveGroomers(
+  db: Database.Database = getMobileDatabase()
+): GroomerRecord[] {
+  return listGroomers(db, parseInput(listGroomersSchema, { includeInactive: false }))
+}
+
+export function createTurn(
+  input: CreateAppointmentInput,
+  db: Database.Database = getMobileDatabase()
+): AppointmentRecord {
+  requirePermission('peluqueria', db)
+
+  const parsed = parseInput(createAppointmentSchema, input)
+  const appointment = createAppointment(db, parsed)
+
+  recordActivity(
+    {
+      action: 'turno.creado',
+      entityType: 'appointment',
+      entityId: appointment.id,
+      details: { date: parsed.date, startMinutes: parsed.startMinutes }
+    },
+    db
+  )
+
+  return appointment
 }
 
 export function changeAppointmentStatus(

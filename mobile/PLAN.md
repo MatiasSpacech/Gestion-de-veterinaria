@@ -230,10 +230,10 @@ usan el backup online de `expo-sqlite` y la carpeta privada de la app.
 Resultados en `RESULTS_PHASE_3.md`.
 
 - Panel. — Hecho
-- Clientes, mascotas e historial. — Hecho
-- Inventario. — Hecho
-- Ventas. — Hecho
-- Peluquería. — Hecho
+- Clientes, mascotas e historial. — Hecho: ficha, alta de mascotas y registros clínicos.
+- Inventario. — Hecho: búsqueda, filtros por stock y carga de mercadería.
+- Ventas. — Hecho: punto de venta con cliente y mascota opcionales, historial y anulación.
+- Peluquería. — Hecho: agenda, alta de turnos, estados y cobro.
 
 Criterio de aceptación: cumplido. El panel muestra ventas del día, turnos, stock bajo y vacunas
 próximas con los datos reales de la base local. Desde el mismo dispositivo se cargan clientes,

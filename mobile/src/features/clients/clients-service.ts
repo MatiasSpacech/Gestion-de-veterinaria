@@ -1,13 +1,17 @@
 import type Database from 'better-sqlite3'
 import { createClient, getClientDetail, listClients, updateClient } from '@desktop/services/clients'
-import { listMedicalRecords, listPets } from '@desktop/services/pets'
+import { createMedicalRecord, createPet, listMedicalRecords, listPets } from '@desktop/services/pets'
 import {
   createClientSchema,
+  createMedicalRecordSchema,
+  createPetSchema,
   listClientsSchema,
   listMedicalRecordsSchema,
   listPetsSchema,
   updateClientSchema,
   type CreateClientInput,
+  type CreateMedicalRecordInput,
+  type CreatePetInput,
   type ListClientsInput,
   type ListMedicalRecordsInput,
   type ListPetsInput,
@@ -127,4 +131,48 @@ export function updateClientRecord(
 
 export function getCurrentUserName(): string {
   return getSessionUser()?.name ?? ''
+}
+
+export function createPetRecord(
+  input: CreatePetInput,
+  db: Database.Database = getMobileDatabase()
+): PetRecord {
+  requirePermission('clientes', db)
+
+  const parsed = parseInput(createPetSchema, input)
+  const pet = createPet(db, parsed, getSessionUser()?.id ?? null)
+
+  recordActivity(
+    {
+      action: 'mascota.creada',
+      entityType: 'pet',
+      entityId: pet.id,
+      details: { clientId: pet.clientId, name: pet.name }
+    },
+    db
+  )
+
+  return pet
+}
+
+export function createMedicalRecordEntry(
+  input: CreateMedicalRecordInput,
+  db: Database.Database = getMobileDatabase()
+): MedicalRecord {
+  requirePermission('clientes', db)
+
+  const parsed = parseInput(createMedicalRecordSchema, input)
+  const record = createMedicalRecord(db, parsed, getSessionUser()?.id ?? null)
+
+  recordActivity(
+    {
+      action: 'historial.creado',
+      entityType: 'medical_record',
+      entityId: record.id,
+      details: { petId: parsed.petId, type: parsed.type }
+    },
+    db
+  )
+
+  return record
 }

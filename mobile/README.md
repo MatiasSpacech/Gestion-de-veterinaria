@@ -130,6 +130,9 @@ mobile/
     backups.tsx                # Backups de la base local
     clientes/[id].tsx          # Ficha del cliente con mascotas e historial
     clientes/nuevo.tsx         # Alta de cliente
+    clientes/nueva-mascota.tsx # Alta de mascota del cliente
+    mascotas/[id]/registro.tsx # Alta de registros del historial clínico
+    turnos/nuevo.tsx           # Alta de turnos de peluquería o consulta
     inventario.tsx             # Productos, stock y carga de mercadería
     ventas.tsx                 # Historial de ventas y anulaciones
     diagnostico.tsx            # Autodiagnóstico de la Fase 0
@@ -174,8 +177,9 @@ escritorio, auditoría de actividad, pantallas de primer inicio, login y logout,
 el backup online de `expo-sqlite` y pruebas de compatibilidad con el escritorio.
 
 Fase 3 completada: panel con ventas, turnos, stock bajo y vacunas próximas; clientes con su ficha
-de mascotas e historial; inventario con carga de stock; punto de venta con carrito, descuento y
-medio de pago, más historial y anulación de ventas; agenda del día con estados y cobro de turnos.
+de mascotas e historial, alta de mascotas y de registros clínicos; inventario con carga de stock;
+punto de venta con carrito, cliente y mascota opcionales, descuento y medio de pago, más historial
+y anulación de ventas; agenda con alta de turnos, estados y cobro.
 
 Detalles y mediciones en [RESULTS_PHASE_0.md](./RESULTS_PHASE_0.md),
 [RESULTS_PHASE_1.md](./RESULTS_PHASE_1.md), [RESULTS_PHASE_2.md](./RESULTS_PHASE_2.md) y

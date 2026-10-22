@@ -1,9 +1,10 @@
-import { useLocalSearchParams, useRouter } from 'expo-router'
-import { useCallback, useEffect, useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router'
+import { useCallback, useState } from 'react'
+import { Linking, StyleSheet, View } from 'react-native'
 import { Button, Text, useTheme } from 'react-native-paper'
 import { formatDate, formatPetSex } from '@renderer/lib/format'
 
+import { AppButton } from '../../src/components/AppButton'
 import { EmptyState } from '../../src/components/EmptyState'
 import { ListRow } from '../../src/components/ListRow'
 import { Screen } from '../../src/components/Screen'
@@ -26,22 +27,43 @@ export default function ClientDetailScreen() {
   const [selectedPet, setSelectedPet] = useState<PetRecord | null>(null)
   const [history, setHistory] = useState<MedicalRecord[]>([])
 
+  const selectedPetId = selectedPet?.id ?? null
+
   const load = useCallback(() => {
     setClient(getClient(clientId))
-    setPets(listClientPets(clientId))
-  }, [clientId])
 
-  useEffect(() => {
-    if (!Number.isFinite(clientId)) {
-      return
+    const nextPets = listClientPets(clientId)
+    setPets(nextPets)
+
+    if (selectedPetId) {
+      const refreshed =
+        nextPets.find((pet) => pet.id === selectedPetId) ?? null
+
+      if (refreshed) {
+        setSelectedPet(refreshed)
+      }
+
+      setHistory(listPetHistory({ petId: selectedPetId }))
     }
+  }, [clientId, selectedPetId])
 
-    load()
-  }, [clientId, load])
+  useFocusEffect(
+    useCallback(() => {
+      if (!Number.isFinite(clientId)) {
+        return
+      }
+
+      load()
+    }, [clientId, load])
+  )
 
   const handleSelectPet = (pet: PetRecord) => {
     setSelectedPet(pet)
     setHistory(listPetHistory({ petId: pet.id }))
+  }
+
+  const openNewRecord = (pet: PetRecord) => {
+    router.push(`/mascotas/${pet.id}/registro`)
   }
 
   if (!client) {
@@ -63,7 +85,9 @@ export default function ClientDetailScreen() {
               icon="call-outline"
               title={client.phone}
               description="Llamar al cliente"
-              onPress={() => router.push(`/clientes/${client.id}`)}
+              onPress={() => {
+                void Linking.openURL(`tel:${client.phone}`)
+              }}
               showChevron={false}
             />
           ) : null}
@@ -102,7 +126,21 @@ export default function ClientDetailScreen() {
         </View>
       </SectionCard>
 
-      <SectionCard title="Mascotas" subtitle={`${pets.length} en la ficha`}>
+      <SectionCard
+        title="Mascotas"
+        subtitle={`${pets.length} en la ficha`}
+        action={
+          <Button
+            compact
+            icon="plus"
+            onPress={() =>
+              router.push(`/clientes/nueva-mascota?clientId=${client.id}`)
+            }
+          >
+            Agregar
+          </Button>
+        }
+      >
         {pets.length === 0 ? (
           <EmptyState
             icon="paw-outline"
@@ -134,6 +172,15 @@ export default function ClientDetailScreen() {
               ? `Próxima vacuna: ${formatDate(selectedPet.nextVaccineDue)}`
               : 'Sin vacunas programadas'
           }
+          action={
+            <Button
+              compact
+              icon="plus"
+              onPress={() => openNewRecord(selectedPet)}
+            >
+              Registro
+            </Button>
+          }
         >
           {history.length === 0 ? (
             <EmptyState
@@ -164,10 +211,25 @@ export default function ClientDetailScreen() {
         </SectionCard>
       ) : null}
 
+      {selectedPet ? (
+        <AppButton
+          icon="document-text-outline"
+          mode="outlined"
+          onPress={() => openNewRecord(selectedPet)}
+        >
+          Agregar registro al historial
+        </AppButton>
+      ) : null}
+
       <Button
         mode="outlined"
         icon="cart-outline"
-        onPress={() => router.push('/(tabs)/vender')}
+        onPress={() =>
+          router.push({
+            pathname: '/(tabs)/vender',
+            params: { clientId: String(client.id) }
+          })
+        }
       >
         Ir a vender
       </Button>
