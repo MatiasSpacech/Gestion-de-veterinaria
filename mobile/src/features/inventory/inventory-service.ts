@@ -1,19 +1,28 @@
 import type Database from 'better-sqlite3'
 import {
   adjustStock as applyStockAdjustment,
+  createProduct as applyProductCreate,
   getInventorySummary,
+  listCategories,
   listProducts,
   registerStockEntry as applyStockEntry
 } from '@desktop/services/inventory'
 import {
+  createProductSchema,
+  listCategoriesSchema,
   listProductsSchema,
   stockAdjustmentSchema,
   stockEntrySchema,
+  type CreateProductInput,
   type ListProductsInput,
   type StockAdjustmentInput,
   type StockEntryInput
 } from '@shared/schemas'
-import type { InventorySummary, ProductRecord } from '@shared/types'
+import type {
+  InventorySummary,
+  ProductCategory,
+  ProductRecord
+} from '@shared/types'
 
 import { recordActivity } from '../../data/controllers/audit'
 import { requirePermission } from '../../data/controllers/permissions'
@@ -68,6 +77,37 @@ export function getInventoryOverview(
   db: Database.Database = getMobileDatabase()
 ): InventorySummary {
   return getInventorySummary(db)
+}
+
+export function listProductCategories(
+  db: Database.Database = getMobileDatabase()
+): ProductCategory[] {
+  return listCategories(
+    db,
+    parseInput(listCategoriesSchema, { includeInactive: false })
+  )
+}
+
+export function createProduct(
+  input: CreateProductInput,
+  db: Database.Database = getMobileDatabase()
+): ProductRecord {
+  requirePermission('inventario', db)
+
+  const parsed = parseInput(createProductSchema, input)
+  const product = applyProductCreate(db, parsed)
+
+  recordActivity(
+    {
+      action: 'inventario.alta',
+      entityType: 'product',
+      entityId: product.id,
+      details: { name: product.name, sku: product.sku }
+    },
+    db
+  )
+
+  return product
 }
 
 export function registerStockEntry(

@@ -39,7 +39,11 @@ export function AgendaBoard({
   onCreate,
   onOpenDay
 }: AgendaBoardProps): React.JSX.Element {
-  if (groomers.length === 0) {
+  const hasUnassigned = appointments.some(
+    (appointment) => appointment.groomerId === null
+  )
+
+  if (groomers.length === 0 && !hasUnassigned) {
     return (
       <Card padding="xl">
         <Stack align="center" gap="sm">
@@ -56,19 +60,43 @@ export function AgendaBoard({
   }
 
   if (view === 'day') {
+    const columns: Array<{
+      key: string
+      name: string
+      color: string
+      groomerId: number | null
+    }> = [
+      ...groomers.map((groomer) => ({
+        key: String(groomer.id),
+        name: groomer.name,
+        color: groomer.color,
+        groomerId: groomer.id as number | null
+      })),
+      ...(hasUnassigned
+        ? [
+            {
+              key: 'unassigned',
+              name: 'Sin peluquero',
+              color: '#adb5bd',
+              groomerId: null
+            }
+          ]
+        : [])
+    ]
+
     return (
-      <SimpleGrid cols={{ base: 1, md: 2, xl: Math.min(groomers.length, 3) }}>
-        {groomers.map((groomer) => {
+      <SimpleGrid cols={{ base: 1, md: 2, xl: Math.min(columns.length, 3) }}>
+        {columns.map((column) => {
           const items = appointments
             .filter(
               (appointment) =>
                 appointment.date === anchorDate &&
-                appointment.groomerId === groomer.id
+                appointment.groomerId === column.groomerId
             )
             .sort((a, b) => a.startMinutes - b.startMinutes)
 
           return (
-            <Card key={groomer.id} padding="lg">
+            <Card key={column.key} padding="lg">
               <Group justify="space-between" mb="md" wrap="nowrap">
                 <Group gap="sm" wrap="nowrap">
                   <span
@@ -76,12 +104,12 @@ export function AgendaBoard({
                       width: 12,
                       height: 12,
                       borderRadius: 99,
-                      background: groomer.color,
+                      background: column.color,
                       flexShrink: 0
                     }}
                   />
                   <div>
-                    <Text fw={700}>{groomer.name}</Text>
+                    <Text fw={700}>{column.name}</Text>
                     <Text size="xs" c="dimmed">
                       {items.length === 1
                         ? '1 turno'
@@ -92,7 +120,11 @@ export function AgendaBoard({
                 <ActionIcon
                   variant="light"
                   color="vetGreen"
-                  aria-label={`Agendar turno con ${groomer.name}`}
+                  aria-label={
+                    column.groomerId === null
+                      ? 'Agendar turno sin peluquero'
+                      : `Agendar turno con ${column.name}`
+                  }
                   onClick={() => onCreate(anchorDate)}
                 >
                   <IconPlus size={17} />
@@ -202,7 +234,7 @@ export function AgendaBoard({
                       style={{
                         textAlign: 'left',
                         cursor: 'pointer',
-                        borderLeft: `4px solid ${appointment.groomerColor}`
+                        borderLeft: `4px solid ${appointment.groomerColor ?? '#adb5bd'}`
                       }}
                     >
                       <Group justify="space-between" gap={4} wrap="nowrap">
@@ -215,7 +247,7 @@ export function AgendaBoard({
                           color="gray"
                           radius="sm"
                         >
-                          {appointment.groomerName.split(' ')[0]}
+                          {appointment.groomerName?.split(' ')[0] ?? 'Sin asignar'}
                         </Badge>
                       </Group>
                       <Text size="sm" fw={600} truncate mt={2}>
@@ -255,7 +287,7 @@ function AppointmentCard({
         width: '100%',
         textAlign: 'left',
         cursor: 'pointer',
-        borderLeft: `4px solid ${appointment.groomerColor}`
+        borderLeft: `4px solid ${appointment.groomerColor ?? '#adb5bd'}`
       }}
     >
       <Group justify="space-between" align="flex-start" wrap="nowrap" gap="sm">

@@ -161,7 +161,7 @@ export default function AgendaScreen() {
                     style={{ color: theme.colors.onSurfaceVariant }}
                   >
                     {minutesToTime(appointment.startMinutes)} ·{' '}
-                    {appointment.groomerName} · {formatCurrency(appointment.totalCents)}
+                    {formatCurrency(appointment.totalCents)}
                   </Text>
                 </View>
                 <Chip compact>{appointment.status}</Chip>

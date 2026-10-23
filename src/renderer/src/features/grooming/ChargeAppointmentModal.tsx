@@ -88,7 +88,7 @@ export function ChargeAppointmentModal({
                 <Text size="sm" c="dimmed" mt={4}>
                   {appointment.date.split('-').reverse().join('/')} ·{' '}
                   {formatMinutes(appointment.startMinutes)} ·{' '}
-                  {appointment.groomerName}
+                  {appointment.groomerName ?? 'Sin peluquero'}
                 </Text>
               </div>
               <Text fz={24} fw={800}>

@@ -4,7 +4,7 @@ import { ScrollView, StyleSheet, View } from 'react-native'
 import { Chip, Text, useTheme } from 'react-native-paper'
 import { formatCurrency } from '@renderer/lib/format'
 import { AppError } from '@shared/errors'
-import type { ClientRecord, GroomerRecord, PetRecord, ServiceRecord } from '@shared/types'
+import type { ClientRecord, PetRecord, ServiceRecord } from '@shared/types'
 
 import { AppButton } from '../../src/components/AppButton'
 import { AppTextInput } from '../../src/components/AppTextInput'
@@ -17,7 +17,6 @@ import { listClientPets, listClientsDirectory } from '../../src/features/clients
 import { localDateKey } from '../../src/features/dashboard/dashboard-service'
 import {
   createTurn,
-  listActiveGroomers,
   listGroomingServices
 } from '../../src/features/grooming/grooming-service'
 import { getBusinessProfile } from '../../src/features/settings/settings-service'
@@ -26,14 +25,12 @@ export default function NewAppointmentScreen() {
   const router = useRouter()
   const theme = useTheme()
 
-  const [groomers, setGroomers] = useState<GroomerRecord[]>([])
   const [services, setServices] = useState<ServiceRecord[]>([])
   const [clientSearch, setClientSearch] = useState('')
   const [clientResults, setClientResults] = useState<ClientRecord[]>([])
   const [client, setClient] = useState<ClientRecord | null>(null)
   const [pets, setPets] = useState<PetRecord[]>([])
   const [petId, setPetId] = useState<number | null>(null)
-  const [groomerId, setGroomerId] = useState<number | null>(null)
   const [serviceIds, setServiceIds] = useState<number[]>([])
   const [date, setDate] = useState(localDateKey())
   const [time, setTime] = useState('09:00')
@@ -42,7 +39,6 @@ export default function NewAppointmentScreen() {
   const [busy, setBusy] = useState(false)
 
   useEffect(() => {
-    setGroomers(listActiveGroomers())
     setServices(listGroomingServices())
   }, [])
 
@@ -91,10 +87,6 @@ export default function NewAppointmentScreen() {
         throw new AppError('VALIDATION_ERROR', 'Elegí una mascota')
       }
 
-      if (groomerId === null) {
-        throw new AppError('VALIDATION_ERROR', 'Elegí un peluquero')
-      }
-
       if (serviceIds.length === 0) {
         throw new AppError('VALIDATION_ERROR', 'Agregá al menos un servicio')
       }
@@ -106,7 +98,7 @@ export default function NewAppointmentScreen() {
       const appointment = createTurn({
         clientId: client.id,
         petId,
-        groomerId,
+        groomerId: null,
         date: date.trim(),
         startMinutes,
         serviceIds,
@@ -179,28 +171,6 @@ export default function NewAppointmentScreen() {
             </View>
           )
         ) : null}
-      </SectionCard>
-
-      <SectionCard title="Peluquero">
-        {groomers.length === 0 ? (
-          <EmptyState
-            icon="person-outline"
-            title="Sin peluqueros"
-            description="Cargá peluqueros desde la app de escritorio."
-          />
-        ) : (
-          <View style={styles.chips}>
-            {groomers.map((groomer) => (
-              <Chip
-                key={groomer.id}
-                selected={groomerId === groomer.id}
-                onPress={() => setGroomerId(groomer.id)}
-              >
-                {groomer.name}
-              </Chip>
-            ))}
-          </View>
-        )}
       </SectionCard>
 
       <SectionCard

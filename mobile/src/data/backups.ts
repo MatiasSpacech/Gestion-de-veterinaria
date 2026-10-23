@@ -1,5 +1,7 @@
 import { Directory, File, Paths } from 'expo-file-system'
 import { backupDatabaseSync, openDatabaseSync } from 'expo-sqlite'
+import { runMigrations } from '@desktop/db/migrations'
+import { seedDatabase } from '@desktop/db/seed'
 import { logActivity } from '@desktop/services/activity'
 import { getSetting, getSettings, setSetting } from '@desktop/services/settings'
 import { AppError } from '@shared/errors'
@@ -11,11 +13,7 @@ import {
   selectBackupsToPrune,
   type BackupFileInfo
 } from './backup-format'
-import {
-  closeMobileDatabase,
-  getMobileDatabase,
-  getMobileSqlite
-} from './db'
+import { getMobileDatabase, getMobileSqlite } from './db'
 
 const BACKUP_FOLDER = 'backups'
 
@@ -23,12 +21,88 @@ export interface MobileBackup extends BackupFileInfo {
   uri: string
 }
 
-function toFileUri(path: string): string {
-  return path.startsWith('file://') ? path : `file://${path}`
-}
-
 function toPlainPath(uri: string): string {
   return uri.startsWith('file://') ? uri.slice('file://'.length) : uri
+}
+
+function assertBackupIsRestorable(fileName: string): void {
+  const directory = getBackupsDirectory()
+  let backupDatabase: ReturnType<typeof openDatabaseSync> | null = null
+
+  try {
+    backupDatabase = openDatabaseSync(
+      fileName,
+      { useNewConnection: true },
+      toPlainPath(directory.uri)
+    )
+    backupDatabase.execSync('PRAGMA query_only = ON')
+
+    const integrity = backupDatabase.getFirstSync<{
+      integrity_check: string
+    }>('PRAGMA integrity_check')
+
+    if (integrity?.integrity_check !== 'ok') {
+      throw new AppError(
+        'VALIDATION_ERROR',
+        'El backup está dañado y no se puede restaurar'
+      )
+    }
+
+    const users = backupDatabase.getFirstSync<{ count: number }>(
+      'SELECT COUNT(*) AS count FROM users'
+    )
+
+    if (!users || Number(users.count) < 1) {
+      throw new AppError(
+        'VALIDATION_ERROR',
+        'El backup no contiene usuarios y no se puede restaurar'
+      )
+    }
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw error
+    }
+
+    throw new AppError(
+      'VALIDATION_ERROR',
+      'El backup está dañado o no es compatible'
+    )
+  } finally {
+    backupDatabase?.closeSync()
+  }
+}
+
+function copyBackupIntoLiveDatabase(fileName: string): void {
+  const directory = getBackupsDirectory()
+  const backupDatabase = openDatabaseSync(
+    fileName,
+    { useNewConnection: true },
+    toPlainPath(directory.uri)
+  )
+
+  try {
+    backupDatabase.execSync('PRAGMA query_only = ON')
+    backupDatabase.execSync('PRAGMA busy_timeout = 5000')
+    backupDatabaseSync({
+      sourceDatabase: backupDatabase,
+      destDatabase: getMobileSqlite()
+    })
+  } finally {
+    backupDatabase.closeSync()
+  }
+
+  const db = getMobileDatabase()
+  runMigrations(db)
+  seedDatabase(db)
+}
+
+function tryRestoreSafetyBackup(safety: MobileBackup): boolean {
+  try {
+    copyBackupIntoLiveDatabase(safety.fileName)
+    return true
+  } catch {
+    return false
+  }
 }
 
 export function getBackupsDirectory(): Directory {
@@ -152,33 +226,33 @@ export async function restoreBackup(fileName: string): Promise<void> {
     throw new AppError('NOT_FOUND', 'El backup ya no existe')
   }
 
-  const db = getMobileDatabase()
+  assertBackupIsRestorable(fileName)
 
-  // Backup de seguridad del estado actual antes de reemplazar la base.
-  createBackup(null)
+  const safety = createBackup(null)
 
-  const databasePath = getMobileSqlite().databasePath
-  const target = new File(toFileUri(databasePath))
+  try {
+    await Promise.resolve()
+    copyBackupIntoLiveDatabase(fileName)
+  } catch (error) {
+    const safetyRestored = tryRestoreSafetyBackup(safety)
 
-  closeMobileDatabase()
-
-  await source.copy(target, { overwrite: true })
-
-  for (const suffix of ['-wal', '-shm']) {
-    const sidecar = new File(toFileUri(`${databasePath}${suffix}`))
-
-    if (sidecar.exists) {
-      sidecar.delete()
+    if (error instanceof AppError) {
+      throw error
     }
+
+    throw new AppError(
+      'INTERNAL_ERROR',
+      safetyRestored
+        ? 'No se pudo restaurar el backup. Se conservó la base anterior.'
+        : 'No se pudo restaurar el backup ni recuperar la base anterior. Usá el backup de seguridad más reciente.'
+    )
   }
 
-  getMobileDatabase()
-
-  logActivity(db, {
+  logActivity(getMobileDatabase(), {
     userId: null,
     action: 'backup.restore',
     entityType: 'backup',
-    details: { fileName }
+    details: { fileName, safetyBackup: safety.fileName }
   })
 }
 

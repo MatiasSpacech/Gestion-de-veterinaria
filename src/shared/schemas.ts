@@ -558,7 +558,7 @@ export const appointmentStatusSchema = z.enum([
 const appointmentFieldsSchema = z.object({
   clientId: idSchema,
   petId: idSchema,
-  groomerId: idSchema,
+  groomerId: optionalId,
   date: isoDateSchema,
   startMinutes: z
     .number()

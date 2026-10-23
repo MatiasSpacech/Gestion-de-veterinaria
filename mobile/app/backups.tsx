@@ -1,7 +1,16 @@
 import { useRouter } from 'expo-router'
 import { useCallback, useEffect, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
-import { Card, IconButton, Switch, Text, useTheme } from 'react-native-paper'
+import {
+  Button,
+  Card,
+  Dialog,
+  IconButton,
+  Portal,
+  Switch,
+  Text,
+  useTheme
+} from 'react-native-paper'
 import { formatDateTime } from '@renderer/lib/format'
 
 import { AppButton } from '../src/components/AppButton'
@@ -31,6 +40,7 @@ export default function BackupsScreen() {
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [restoreTarget, setRestoreTarget] = useState<MobileBackup | null>(null)
 
   const refresh = useCallback(() => {
     const db = getMobileDatabase()
@@ -82,6 +92,7 @@ export default function BackupsScreen() {
       setError(toAppError(caught).message)
     } finally {
       setBusy(false)
+      setRestoreTarget(null)
     }
   }
 
@@ -170,9 +181,10 @@ export default function BackupsScreen() {
                 </View>
                 <View style={styles.actions}>
                   <IconButton
+                    disabled={busy}
                     icon="restore"
                     mode="contained-tonal"
-                    onPress={() => handleRestore(backup.fileName)}
+                    onPress={() => setRestoreTarget(backup)}
                   />
                   <IconButton
                     icon="delete-outline"
@@ -185,6 +197,55 @@ export default function BackupsScreen() {
           </Card.Content>
         </Card>
       )}
+
+      <Portal>
+        <Dialog
+          visible={restoreTarget !== null}
+          onDismiss={() => {
+            if (!busy) {
+              setRestoreTarget(null)
+            }
+          }}
+        >
+          <Dialog.Title>Restaurar backup</Dialog.Title>
+          <Dialog.Content style={styles.dialogContent}>
+            <Text variant="bodyMedium">
+              Se reemplazarán todos los datos actuales por los del backup:
+            </Text>
+            <Text variant="titleSmall" style={styles.title}>
+              {restoreTarget ? formatDateTime(restoreTarget.createdAt) : ''}
+            </Text>
+            <Text
+              variant="bodySmall"
+              style={{ color: theme.colors.onSurfaceVariant }}
+            >
+              {restoreTarget?.fileName}
+            </Text>
+            <Text variant="bodySmall">
+              Se creará un backup del estado actual antes de restaurar y se
+              cerrará la sesión.
+            </Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button
+              disabled={busy}
+              onPress={() => setRestoreTarget(null)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              loading={busy}
+              onPress={() => {
+                if (restoreTarget) {
+                  void handleRestore(restoreTarget.fileName)
+                }
+              }}
+            >
+              Restaurar
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </Screen>
   )
 }
@@ -192,6 +253,9 @@ export default function BackupsScreen() {
 const styles = StyleSheet.create({
   cardContent: {
     gap: 14
+  },
+  dialogContent: {
+    gap: 10
   },
   list: {
     gap: 12

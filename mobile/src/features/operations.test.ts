@@ -10,7 +10,12 @@ vi.mock('../data/db', () => ({
 import { createMigratedTestDatabase } from '../data/testing/database'
 import { setSessionUser } from '../data/controllers/session'
 import { setupAdmin } from '@desktop/services/auth'
-import { listInventory, registerStockEntry } from './inventory/inventory-service'
+import {
+  createProduct,
+  listInventory,
+  listProductCategories,
+  registerStockEntry
+} from './inventory/inventory-service'
 import {
   createClientRecord,
   createMedicalRecordEntry,
@@ -141,6 +146,40 @@ describe('servicios de la operación diaria', () => {
     expect(listInventory({ search: 'Producto' }, db)).toHaveLength(1)
   })
 
+  it('crea un producto con categoría y stock inicial en cero', () => {
+    const [category] = listProductCategories(db)
+
+    const product = createProduct(
+      {
+        name: 'Alimento balanceado 10 kg',
+        sku: 'ALI-10',
+        barcode: null,
+        categoryId: category.id,
+        unit: 'bolsa',
+        costCents: 1200000,
+        priceCents: 1800000,
+        minStock: 2,
+        notes: null
+      },
+      db
+    )
+
+    expect(product.categoryId).toBe(category.id)
+    expect(product.categoryName).toBe(category.name)
+    expect(product.stock).toBe(0)
+    expect(product.outOfStock).toBe(true)
+    expect(listInventory({ search: 'ALI-10' }, db)).toHaveLength(1)
+
+    const activity = db
+      .prepare(
+        `SELECT action FROM activity_log
+         WHERE entity_type = 'product' AND entity_id = ?`
+      )
+      .get(product.id) as { action: string }
+
+    expect(activity.action).toBe('inventario.alta')
+  })
+
   it('crea una venta y la deja en el historial', () => {
     const now = new Date().toISOString()
 
@@ -239,7 +278,7 @@ describe('servicios de la operación diaria', () => {
     )
   })
 
-  it('crea un turno con cliente, mascota, peluquero y servicios', () => {
+  it('crea turnos con y sin peluquero asignado', () => {
     const now = new Date().toISOString()
     const service = db
       .prepare("SELECT id FROM services WHERE name = 'Baño'")
@@ -307,9 +346,26 @@ describe('servicios de la operación diaria', () => {
     expect(appointment.durationMinutes).toBe(45)
     expect(appointment.services).toHaveLength(1)
 
+    const unassigned = createTurn(
+      {
+        clientId: client.id,
+        petId: pet.id,
+        groomerId: null,
+        date: '2026-10-22',
+        startMinutes: 720,
+        serviceIds: [service.id],
+        notes: null
+      },
+      db
+    )
+
+    expect(unassigned.groomerId).toBeNull()
+    expect(unassigned.groomerName).toBeNull()
+    expect(unassigned.groomerColor).toBeNull()
+
     const day = listDayAppointments('2026-10-22', {}, db)
 
-    expect(day).toHaveLength(1)
+    expect(day).toHaveLength(2)
     expect(day[0].petName).toBe('Michi')
   })
 

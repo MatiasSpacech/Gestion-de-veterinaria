@@ -100,7 +100,7 @@ export default function HomeScreen() {
                   >
                     {formatTimeRange(appointment.startMinutes, appointment.endMinutes)}
                     {' · '}
-                    {appointment.groomerName} · {formatCurrency(appointment.totalCents)}
+                    {formatCurrency(appointment.totalCents)}
                   </Text>
                 </View>
                 <Text variant="labelSmall" style={styles.badge}>

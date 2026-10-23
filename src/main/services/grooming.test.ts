@@ -178,6 +178,41 @@ describe('peluquería', () => {
     )
   })
 
+  it('permite agendar turnos sin peluquero asignado', () => {
+    const appointment = createAppointment(
+      database,
+      appointmentInput({ groomerId: null })
+    )
+
+    expect(appointment).toMatchObject({
+      groomerId: null,
+      groomerName: null,
+      groomerColor: null,
+      status: 'pendiente',
+      totalCents: 300000
+    })
+    expect(appointment.services).toHaveLength(2)
+
+    const overlapping = createAppointment(
+      database,
+      appointmentInput({
+        groomerId: null,
+        startMinutes: 10 * 60,
+        serviceIds: [bathServiceId]
+      })
+    )
+
+    expect(overlapping.id).not.toBe(appointment.id)
+    expect(
+      listAppointments(database, {
+        dateFrom: localDate(),
+        dateTo: localDate(),
+        groomerId: null,
+        status: 'all'
+      })
+    ).toHaveLength(2)
+  })
+
   it('agenda turnos, calcula totales y evita solapamientos', () => {
     const appointment = createAppointment(database, appointmentInput())
 

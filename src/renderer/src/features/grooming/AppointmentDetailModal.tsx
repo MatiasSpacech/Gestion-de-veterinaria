@@ -168,13 +168,13 @@ export function AppointmentDetailModal({
                         width: 8,
                         height: 8,
                         borderRadius: 99,
-                        background: appointment.groomerColor,
+                        background: appointment.groomerColor ?? '#adb5bd',
                         display: 'inline-block'
                       }}
                     />
                   }
                 >
-                  {appointment.groomerName}
+                  {appointment.groomerName ?? 'Sin peluquero'}
                 </Badge>
                 {appointment.clientPhone ? (
                   <Group gap={4}>

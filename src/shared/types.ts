@@ -313,9 +313,9 @@ export interface AppointmentRecord {
   clientPhone: string | null
   petId: number
   petName: string
-  groomerId: number
-  groomerName: string
-  groomerColor: string
+  groomerId: number | null
+  groomerName: string | null
+  groomerColor: string | null
   date: string
   startMinutes: number
   endMinutes: number

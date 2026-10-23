@@ -54,9 +54,9 @@ interface AppointmentRow {
   client_phone: string | null
   pet_id: number
   pet_name: string
-  groomer_id: number
-  groomer_name: string
-  groomer_color: string
+  groomer_id: number | null
+  groomer_name: string | null
+  groomer_color: string | null
   date: string
   start_minutes: number
   end_minutes: number
@@ -97,7 +97,7 @@ const APPOINTMENT_SELECT = `
   FROM appointments a
   JOIN clients c ON c.id = a.client_id
   JOIN pets p ON p.id = a.pet_id
-  JOIN groomers g ON g.id = a.groomer_id
+  LEFT JOIN groomers g ON g.id = a.groomer_id
   LEFT JOIN sales s ON s.id = a.sale_id
 `
 
@@ -302,12 +302,16 @@ function resolveServices(
 
 function assertGroomerAvailable(
   db: Database.Database,
-  groomerId: number,
+  groomerId: number | null,
   date: string,
   startMinutes: number,
   endMinutes: number,
   ignoreAppointmentId: number | null = null
 ): void {
+  if (groomerId === null) {
+    return
+  }
+
   const params: unknown[] = [groomerId, date, endMinutes, startMinutes]
   let ignoreClause = ''
 
@@ -344,7 +348,7 @@ function assertClientPetAndGroomer(
   db: Database.Database,
   clientId: number,
   petId: number,
-  groomerId: number
+  groomerId: number | null
 ): void {
   const client = db
     .prepare('SELECT id, active FROM clients WHERE id = ?')
@@ -377,6 +381,10 @@ function assertClientPetAndGroomer(
       'CONFLICT',
       'La mascota no pertenece al cliente seleccionado'
     )
+  }
+
+  if (groomerId === null) {
+    return
   }
 
   const groomer = getGroomerRow(db, groomerId)

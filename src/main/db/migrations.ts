@@ -264,6 +264,62 @@ export const MIGRATIONS: Migration[] = [
       );
       CREATE INDEX idx_activity_created ON activity_log(created_at);
     `
+  },
+  {
+    version: 2,
+    name: 'optional_appointment_groomer',
+    sql: `
+      PRAGMA defer_foreign_keys = ON;
+
+      CREATE TABLE appointments_new (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        client_id INTEGER NOT NULL REFERENCES clients(id) ON DELETE RESTRICT,
+        pet_id INTEGER NOT NULL REFERENCES pets(id) ON DELETE RESTRICT,
+        groomer_id INTEGER REFERENCES groomers(id) ON DELETE SET NULL,
+        date TEXT NOT NULL,
+        start_minutes INTEGER NOT NULL CHECK (start_minutes >= 0 AND start_minutes < 1440),
+        duration_minutes INTEGER NOT NULL CHECK (duration_minutes > 0),
+        status TEXT NOT NULL DEFAULT 'pendiente' CHECK (status IN ('pendiente', 'confirmado', 'en_proceso', 'completado', 'cancelado', 'no_asistio')),
+        notes TEXT,
+        total_cents INTEGER NOT NULL DEFAULT 0 CHECK (total_cents >= 0),
+        sale_id INTEGER REFERENCES sales(id) ON DELETE SET NULL,
+        created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+        updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+      );
+
+      INSERT INTO appointments_new
+        (id, client_id, pet_id, groomer_id, date, start_minutes,
+         duration_minutes, status, notes, total_cents, sale_id, created_at,
+         updated_at)
+      SELECT id, client_id, pet_id, groomer_id, date, start_minutes,
+        duration_minutes, status, notes, total_cents, sale_id, created_at,
+        updated_at
+      FROM appointments;
+
+      CREATE TABLE appointment_services_new (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        appointment_id INTEGER NOT NULL REFERENCES appointments_new(id) ON DELETE CASCADE,
+        service_id INTEGER REFERENCES services(id) ON DELETE SET NULL,
+        name TEXT NOT NULL,
+        price_cents INTEGER NOT NULL CHECK (price_cents >= 0),
+        duration_minutes INTEGER NOT NULL CHECK (duration_minutes > 0)
+      );
+
+      INSERT INTO appointment_services_new
+        (id, appointment_id, service_id, name, price_cents, duration_minutes)
+      SELECT id, appointment_id, service_id, name, price_cents, duration_minutes
+      FROM appointment_services;
+
+      DROP TABLE appointment_services;
+      DROP TABLE appointments;
+      ALTER TABLE appointments_new RENAME TO appointments;
+      ALTER TABLE appointment_services_new RENAME TO appointment_services;
+
+      CREATE INDEX idx_appointments_date ON appointments(date);
+      CREATE INDEX idx_appointments_groomer_date ON appointments(groomer_id, date);
+      CREATE INDEX idx_appointments_pet ON appointments(pet_id);
+      CREATE INDEX idx_appointment_services_appointment ON appointment_services(appointment_id);
+    `
   }
 ]
 

@@ -87,7 +87,8 @@ export function AppointmentFormModal({
       setValues({
         clientId: String(appointment.clientId),
         petId: String(appointment.petId),
-        groomerId: String(appointment.groomerId),
+        groomerId:
+          appointment.groomerId === null ? null : String(appointment.groomerId),
         date: appointment.date,
         startTime: formatMinutes(appointment.startMinutes),
         serviceIds: appointment.services

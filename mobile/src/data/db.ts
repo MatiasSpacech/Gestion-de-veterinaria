@@ -89,20 +89,26 @@ export function getMobileDatabase(): Database.Database {
   }
 
   const opened = openDatabaseSync(DATABASE_NAME)
-  opened.execSync('PRAGMA foreign_keys = ON')
-  opened.execSync('PRAGMA busy_timeout = 5000')
-  opened.execSync('PRAGMA journal_mode = WAL')
-  opened.execSync('PRAGMA synchronous = NORMAL')
 
-  const adapter = new ExpoSqliteAdapter(opened) as unknown as Database.Database
+  try {
+    opened.execSync('PRAGMA foreign_keys = ON')
+    opened.execSync('PRAGMA busy_timeout = 5000')
+    opened.execSync('PRAGMA journal_mode = WAL')
+    opened.execSync('PRAGMA synchronous = NORMAL')
 
-  runMigrations(adapter)
-  seedDatabase(adapter)
+    const adapter = new ExpoSqliteAdapter(opened) as unknown as Database.Database
 
-  database = adapter
-  sqlite = opened
+    runMigrations(adapter)
+    seedDatabase(adapter)
 
-  return adapter
+    database = adapter
+    sqlite = opened
+
+    return adapter
+  } catch (error) {
+    opened.closeSync()
+    throw error
+  }
 }
 
 /**
@@ -114,20 +120,4 @@ export function getMobileSqlite(): SQLiteDatabase {
   }
 
   return sqlite as SQLiteDatabase
-}
-
-/**
- * Ruta absoluta del archivo de base de datos, para poder reemplazarlo al restaurar.
- */
-export function getDatabasePath(): string {
-  return getMobileSqlite().databasePath
-}
-
-export function closeMobileDatabase(): void {
-  if (sqlite) {
-    sqlite.closeSync()
-  }
-
-  sqlite = null
-  database = null
 }

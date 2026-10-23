@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useFocusEffect, useRouter } from 'expo-router'
+import { useCallback, useMemo, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import {
   Button,
@@ -12,6 +13,7 @@ import {
 import { formatCurrency } from '@renderer/lib/format'
 import { AppError } from '@shared/errors'
 
+import { AppButton } from '../src/components/AppButton'
 import { AppTextInput } from '../src/components/AppTextInput'
 import { BarcodeScannerModal } from '../src/components/BarcodeScannerModal'
 import { EmptyState } from '../src/components/EmptyState'
@@ -28,6 +30,7 @@ import type { ProductRecord } from '@shared/types'
 type StockFilter = 'all' | 'low' | 'out'
 
 export default function InventoryScreen() {
+  const router = useRouter()
   const theme = useTheme()
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState<StockFilter>('all')
@@ -55,9 +58,11 @@ export default function InventoryScreen() {
     })
   }, [search, filter])
 
-  useEffect(() => {
-    load()
-  }, [load])
+  useFocusEffect(
+    useCallback(() => {
+      load()
+    }, [load])
+  )
 
   const openEntry = (product: ProductRecord) => {
     setSelected(product)
@@ -145,6 +150,14 @@ export default function InventoryScreen() {
             size={24}
           />
         </View>
+
+        <AppButton
+          icon="plus"
+          mode="contained-tonal"
+          onPress={() => router.push('/inventario/nuevo')}
+        >
+          Nuevo producto
+        </AppButton>
       </SectionCard>
 
       {grouped.length === 0 ? (
