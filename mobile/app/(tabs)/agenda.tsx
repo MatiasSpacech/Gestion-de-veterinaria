@@ -1,8 +1,8 @@
 import { useFocusEffect, useRouter } from 'expo-router'
 import { useCallback, useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { Linking, StyleSheet, View } from 'react-native'
 import { Button, Chip, Dialog, Portal, Text, useTheme } from 'react-native-paper'
-import { formatCurrency } from '@renderer/lib/format'
+import { formatCurrency, formatDate } from '@renderer/lib/format'
 import type { AppointmentStatus, PaymentMethod } from '@shared/types'
 
 import { AppButton } from '../../src/components/AppButton'
@@ -11,10 +11,17 @@ import { Screen } from '../../src/components/Screen'
 import { SectionCard } from '../../src/components/SectionCard'
 import { toAppError } from '../../src/data/controllers/validation'
 import {
+  cancelAppointmentReminder,
+  scheduleAppointmentReminder
+} from '../../src/data/notifications'
+import { shouldCancelAppointmentReminder } from '../../src/data/notifications-policy'
+import {
   changeAppointmentStatus,
   chargeTurn,
   listDayAppointments
 } from '../../src/features/grooming/grooming-service'
+import { getBusinessProfile } from '../../src/features/settings/settings-service'
+import { buildAppointmentWhatsAppUrl } from '../../src/lib/whatsapp'
 import type { AppointmentRecord } from '@shared/types'
 
 const STATUS_OPTIONS: readonly { value: AppointmentStatus; label: string }[] = [
@@ -59,7 +66,14 @@ export default function AgendaScreen() {
     setBusy(true)
 
     try {
-      changeAppointmentStatus({ id: selected.id, status })
+      const updated = changeAppointmentStatus({ id: selected.id, status })
+
+      if (shouldCancelAppointmentReminder(status)) {
+        void cancelAppointmentReminder(selected.id)
+      } else {
+        void scheduleAppointmentReminder(updated, getBusinessProfile().name)
+      }
+
       setSelected(null)
       load()
     } catch (caught) {
@@ -67,6 +81,35 @@ export default function AgendaScreen() {
     } finally {
       setBusy(false)
     }
+  }
+
+  const handleWhatsApp = () => {
+    if (!selected) {
+      return
+    }
+
+    setError(null)
+
+    const profile = getBusinessProfile()
+    const url = buildAppointmentWhatsAppUrl(
+      selected.clientPhone,
+      profile.whatsappTemplate,
+      {
+        cliente: selected.clientName,
+        mascota: selected.petName,
+        servicio: selected.services.map((service) => service.name).join(', '),
+        fecha: formatDate(selected.date),
+        hora: minutesToTime(selected.startMinutes),
+        negocio: profile.name
+      }
+    )
+
+    if (!url) {
+      setError('El cliente no tiene un teléfono válido para WhatsApp')
+      return
+    }
+
+    void Linking.openURL(url)
   }
 
   const handleCharge = () => {
@@ -79,6 +122,7 @@ export default function AgendaScreen() {
 
     try {
       chargeTurn({ id: selected.id, paymentMethod })
+      void cancelAppointmentReminder(selected.id)
       setSelected(null)
       load()
     } catch (caught) {
@@ -148,6 +192,15 @@ export default function AgendaScreen() {
               {selected?.clientName}
               {selected?.clientPhone ? ` · ${selected.clientPhone}` : ''}
             </Text>
+
+            <AppButton
+              disabled={!selected?.clientPhone}
+              icon="whatsapp"
+              mode="outlined"
+              onPress={handleWhatsApp}
+            >
+              Enviar recordatorio por WhatsApp
+            </AppButton>
 
             <Text variant="labelLarge">Estado</Text>
             <View style={styles.chips}>

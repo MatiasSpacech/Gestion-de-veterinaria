@@ -1,6 +1,12 @@
 import type Database from 'better-sqlite3'
 import { createClient, getClientDetail, listClients, updateClient } from '@desktop/services/clients'
-import { createMedicalRecord, createPet, listMedicalRecords, listPets } from '@desktop/services/pets'
+import {
+  createMedicalRecord,
+  createPet,
+  listMedicalRecords,
+  listPets,
+  updatePet
+} from '@desktop/services/pets'
 import {
   createClientSchema,
   createMedicalRecordSchema,
@@ -9,13 +15,15 @@ import {
   listMedicalRecordsSchema,
   listPetsSchema,
   updateClientSchema,
+  updatePetSchema,
   type CreateClientInput,
   type CreateMedicalRecordInput,
   type CreatePetInput,
   type ListClientsInput,
   type ListMedicalRecordsInput,
   type ListPetsInput,
-  type UpdateClientInput
+  type UpdateClientInput,
+  type UpdatePetInput
 } from '@shared/schemas'
 import type { ClientDetail, ClientRecord, MedicalRecord, PetRecord } from '@shared/types'
 
@@ -148,6 +156,27 @@ export function createPetRecord(
       entityType: 'pet',
       entityId: pet.id,
       details: { clientId: pet.clientId, name: pet.name }
+    },
+    db
+  )
+
+  return pet
+}
+
+export function updatePetRecord(
+  input: UpdatePetInput,
+  db: Database.Database = getMobileDatabase()
+): PetRecord {
+  requirePermission('clientes', db)
+
+  const parsed = parseInput(updatePetSchema, input)
+  const pet = updatePet(db, parsed)
+
+  recordActivity(
+    {
+      action: 'mascota.actualizada',
+      entityType: 'pet',
+      entityId: pet.id
     },
     db
   )

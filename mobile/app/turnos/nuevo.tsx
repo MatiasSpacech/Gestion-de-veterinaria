@@ -12,6 +12,7 @@ import { EmptyState } from '../../src/components/EmptyState'
 import { Screen } from '../../src/components/Screen'
 import { SectionCard } from '../../src/components/SectionCard'
 import { toAppError } from '../../src/data/controllers/validation'
+import { scheduleAppointmentReminder } from '../../src/data/notifications'
 import { listClientPets, listClientsDirectory } from '../../src/features/clients/clients-service'
 import { localDateKey } from '../../src/features/dashboard/dashboard-service'
 import {
@@ -19,6 +20,7 @@ import {
   listActiveGroomers,
   listGroomingServices
 } from '../../src/features/grooming/grooming-service'
+import { getBusinessProfile } from '../../src/features/settings/settings-service'
 
 export default function NewAppointmentScreen() {
   const router = useRouter()
@@ -101,7 +103,7 @@ export default function NewAppointmentScreen() {
 
       setBusy(true)
 
-      createTurn({
+      const appointment = createTurn({
         clientId: client.id,
         petId,
         groomerId,
@@ -110,6 +112,8 @@ export default function NewAppointmentScreen() {
         serviceIds,
         notes: notes.trim() === '' ? null : notes
       })
+
+      void scheduleAppointmentReminder(appointment, getBusinessProfile().name)
 
       router.back()
     } catch (caught) {

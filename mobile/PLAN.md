@@ -244,13 +244,20 @@ La lógica de cada módulo vive en `mobile/src/features` y llama a los servicios
 los esquemas Zod compartidos. Cada servicio acepta la base como argumento, con lo que queda
 testeable con el adaptador de `node:sqlite`.
 
-### Fase 4: administración e integraciones
+### Fase 4: administración e integraciones — completada el 22/10/2026
 
-- Usuarios y configuración.
-- Cámara y códigos de barras.
-- Notificaciones locales.
-- WhatsApp, PDF/CSV y compartición.
-- Bloqueo biométrico.
+Resultados en `RESULTS_PHASE_4.md`.
+
+- Usuarios y configuración. — Hecho: altas, roles, estado, contraseñas y datos del negocio.
+- Cámara y códigos de barras. — Hecho: lector en Vender e Inventario, y fotos de mascotas.
+- Notificaciones locales. — Hecho: recordatorio de turnos una hora antes y aviso de prueba.
+- WhatsApp, PDF/CSV y compartición. — Hecho: recordatorio por WhatsApp y exportación de reportes.
+- Bloqueo biométrico. — Hecho: huella o rostro, con contraseña de respaldo y bloqueo automático.
+
+Criterio de aceptación: cumplido. Desde la app se administran usuarios y la configuración del
+negocio, se escanean códigos de barras, se guardan fotos de mascotas, se programan recordatorios
+locales, se envían recordatorios por WhatsApp y se comparten reportes en CSV o PDF. La sesión puede
+protegerse con biometría y se bloquea al volver del segundo plano.
 
 ### Fase 5: calidad y entrega
 

@@ -4,6 +4,7 @@ import {
   Button,
   Chip,
   Dialog,
+  IconButton,
   Portal,
   Text,
   useTheme
@@ -12,6 +13,7 @@ import { formatCurrency } from '@renderer/lib/format'
 import { AppError } from '@shared/errors'
 
 import { AppTextInput } from '../src/components/AppTextInput'
+import { BarcodeScannerModal } from '../src/components/BarcodeScannerModal'
 import { EmptyState } from '../src/components/EmptyState'
 import { Screen } from '../src/components/Screen'
 import { SectionCard } from '../src/components/SectionCard'
@@ -36,6 +38,7 @@ export default function InventoryScreen() {
     outOfStock: 0
   })
   const [selected, setSelected] = useState<ProductRecord | null>(null)
+  const [scannerVisible, setScannerVisible] = useState(false)
   const [quantity, setQuantity] = useState('')
   const [cost, setCost] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -125,13 +128,23 @@ export default function InventoryScreen() {
           </Chip>
         </View>
 
-        <AppTextInput
-          dense
-          label="Buscar producto"
-          onChangeText={setSearch}
-          placeholder="Nombre, SKU o código de barras"
-          value={search}
-        />
+        <View style={styles.searchBar}>
+          <AppTextInput
+            dense
+            label="Buscar producto"
+            onChangeText={setSearch}
+            placeholder="Nombre, SKU o código de barras"
+            style={styles.searchInput}
+            value={search}
+          />
+          <IconButton
+            accessibilityLabel="Escanear código de barras"
+            icon="barcode-scan"
+            mode="contained"
+            onPress={() => setScannerVisible(true)}
+            size={24}
+          />
+        </View>
       </SectionCard>
 
       {grouped.length === 0 ? (
@@ -179,6 +192,12 @@ export default function InventoryScreen() {
         </SectionCard>
       )}
 
+      <BarcodeScannerModal
+        onClose={() => setScannerVisible(false)}
+        onScanned={setSearch}
+        visible={scannerVisible}
+      />
+
       <Portal>
         <Dialog visible={selected !== null} onDismiss={() => setSelected(null)}>
           <Dialog.Title>Cargar stock</Dialog.Title>
@@ -217,6 +236,14 @@ export default function InventoryScreen() {
 }
 
 const styles = StyleSheet.create({
+  searchBar: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 8
+  },
+  searchInput: {
+    flex: 1
+  },
   chips: {
     flexDirection: 'row',
     flexWrap: 'wrap',

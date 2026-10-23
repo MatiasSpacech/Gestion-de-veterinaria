@@ -13,6 +13,9 @@
     "android": {
       "package": "com.vetgestion.mobile",
       "versionCode": 1,
+      "permissions": [
+        "android.permission.POST_NOTIFICATIONS"
+      ],
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -27,7 +30,35 @@
     "plugins": [
       "expo-router",
       "expo-sqlite",
-      "expo-dev-client"
+      "expo-dev-client",
+      "expo-sharing",
+      "expo-secure-store",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "VetGestión usa la cámara para escanear códigos de barras y sacar fotos de las mascotas.",
+          "barcodeScannerEnabled": true
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "VetGestión accede a las fotos para adjuntarlas a la ficha de la mascota.",
+          "cameraPermission": "VetGestión usa la cámara para fotografiar mascotas."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#047857"
+        }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "VetGestión usa la biometría para desbloquear la app."
+        }
+      ]
     ]
   }
 }

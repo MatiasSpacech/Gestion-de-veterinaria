@@ -4,8 +4,9 @@ Aplicación Android de VetGestión para uso interno del local. Es un proyecto in
 propio `package.json`, su propio lockfile y no modifica la app de escritorio.
 
 El plan completo está en [PLAN.md](./PLAN.md). Los resultados están en
-[RESULTS_PHASE_0.md](./RESULTS_PHASE_0.md), [RESULTS_PHASE_1.md](./RESULTS_PHASE_1.md) y
-[RESULTS_PHASE_2.md](./RESULTS_PHASE_2.md).
+[RESULTS_FASE_0.md](./RESULTS_FASE_0.md), [RESULTS_PHASE_1.md](./RESULTS_PHASE_1.md),
+[RESULTS_PHASE_2.md](./RESULTS_PHASE_2.md), [RESULTS_PHASE_3.md](./RESULTS_PHASE_3.md) y
+[RESULTS_PHASE_4.md](./RESULTS_PHASE_4.md).
 
 ## Requisitos
 
@@ -135,12 +136,18 @@ mobile/
     turnos/nuevo.tsx           # Alta de turnos de peluquería o consulta
     inventario.tsx             # Productos, stock y carga de mercadería
     ventas.tsx                 # Historial de ventas y anulaciones
+    usuarios.tsx               # Usuarios, roles, estado y contraseñas
+    configuracion.tsx          # Datos del negocio, agenda, alertas y backups
+    reportes.tsx               # Resumen y exportación CSV/PDF
+    seguridad.tsx              # Bloqueo biométrico y automático
     diagnostico.tsx            # Autodiagnóstico de la Fase 0
   modules/scrypt/              # Módulo nativo de Expo (Kotlin) para node:crypto
   scripts/dev-android.ps1      # Emulador + Metro + build + install + launch
   scripts/setup-android.ps1    # Rutas largas, ninja y local.properties
   src/
     components/                # Componentes táctiles compartidos
+    components/BarcodeScannerModal.tsx # Lector de códigos de barras
+    components/LockScreen.tsx  # Pantalla de desbloqueo
     data/
       db.ts                    # Adaptador expo-sqlite
       password.ts              # Hash de contraseñas compatible con el escritorio
@@ -149,13 +156,22 @@ mobile/
       controllers/             # Sesión, permisos, validación y auditoría
       testing/database.ts      # Adaptador de pruebas sobre node:sqlite
       session-provider.tsx     # Sesión en memoria para React
+      lock.ts                  # Bloqueo biométrico y automático
+      notifications.ts         # Recordatorios locales de turnos
+      notifications-policy.ts  # Fechas y reglas de los recordatorios
+      pet-photos.ts            # Fotos de mascotas en almacenamiento privado
+      report-files.ts          # Exportación CSV/PDF y hoja de compartir
     features/                  # Lógica de la operación diaria por módulo
       dashboard/               # Panel del local
       clients/                 # Clientes, mascotas e historial
       inventory/               # Productos y stock
       sales/                   # Ventas y anulaciones
       grooming/                # Turnos y cobro
+      users/                   # Usuarios, roles y contraseñas
+      settings/                # Configuración del negocio
+      reports/                 # Reportes y exportación
     lib/format.ts              # Formatos propios (tamaño de archivo)
+    lib/whatsapp.ts            # Normalización de teléfonos y plantillas
     shims/node-crypto.ts       # Shim de node:crypto sobre modules/scrypt
     spike/phase0.ts            # Autodiagnóstico de la Fase 0
     theme/                     # Tema, tokens y layout responsivo
@@ -181,6 +197,10 @@ de mascotas e historial, alta de mascotas y de registros clínicos; inventario c
 punto de venta con carrito, cliente y mascota opcionales, descuento y medio de pago, más historial
 y anulación de ventas; agenda con alta de turnos, estados y cobro.
 
-Detalles y mediciones en [RESULTS_PHASE_0.md](./RESULTS_PHASE_0.md),
-[RESULTS_PHASE_1.md](./RESULTS_PHASE_1.md), [RESULTS_PHASE_2.md](./RESULTS_PHASE_2.md) y
-[RESULTS_PHASE_3.md](./RESULTS_PHASE_3.md).
+Fase 4 completada: administración de usuarios y configuración del negocio, lector de códigos de
+barras, fotos de mascotas, recordatorios locales de turnos, WhatsApp, exportación de reportes en
+CSV/PDF y bloqueo biométrico con contraseña de respaldo.
+
+Detalles y mediciones en [RESULTS_FASE_0.md](./RESULTS_FASE_0.md),
+[RESULTS_PHASE_1.md](./RESULTS_PHASE_1.md), [RESULTS_PHASE_2.md](./RESULTS_PHASE_2.md),
+[RESULTS_PHASE_3.md](./RESULTS_PHASE_3.md) y [RESULTS_PHASE_4.md](./RESULTS_PHASE_4.md).

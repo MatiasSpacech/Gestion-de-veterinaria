@@ -37,6 +37,33 @@ export function listInventory(
   )
 }
 
+export function findProductByCode(
+  code: string,
+  db: Database.Database = getMobileDatabase()
+): ProductRecord | null {
+  const value = code.trim()
+
+  if (value === '') {
+    return null
+  }
+
+  const products = listProducts(
+    db,
+    parseInput(listProductsSchema, {
+      search: value,
+      categoryId: null,
+      includeInactive: false,
+      stockFilter: 'all'
+    })
+  )
+
+  return (
+    products.find(
+      (product) => product.barcode === value || product.sku === value
+    ) ?? null
+  )
+}
+
 export function getInventoryOverview(
   db: Database.Database = getMobileDatabase()
 ): InventorySummary {

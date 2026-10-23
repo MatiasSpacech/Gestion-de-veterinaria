@@ -181,7 +181,14 @@ if (-not $SkipBuild) {
   $env:ANDROID_HOME = $SdkRoot
   $env:ANDROID_SDK_ROOT = $SdkRoot
 
-  & $gradlew assembleDebug --console=plain --no-daemon
+  Push-Location $androidRoot
+
+  try {
+    & $gradlew assembleDebug --console=plain --no-daemon
+  }
+  finally {
+    Pop-Location
+  }
 }
 
 if (-not $SkipInstall) {

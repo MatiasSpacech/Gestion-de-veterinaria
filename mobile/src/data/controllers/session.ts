@@ -1,7 +1,9 @@
 import {
   authenticate,
+  getUserRowByUsername,
   isInitialized,
-  setupAdmin
+  setupAdmin,
+  verifyPassword
 } from '@desktop/services/auth'
 import type Database from 'better-sqlite3'
 import type { LoginInput, SetupAdminInput } from '@shared/schemas'
@@ -46,6 +48,23 @@ export function signIn(
 
 export function signOut(): void {
   setSessionUser(null)
+}
+
+export function verifySessionPassword(
+  password: string,
+  db: Database.Database = getMobileDatabase()
+): boolean {
+  if (!currentUser) {
+    return false
+  }
+
+  const row = getUserRowByUsername(db, currentUser.username)
+
+  if (!row || row.active !== 1) {
+    return false
+  }
+
+  return verifyPassword(password, row.password_hash)
 }
 
 export function createFirstAdmin(

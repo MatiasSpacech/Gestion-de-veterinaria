@@ -1,7 +1,15 @@
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
-import { Button, Chip, Dialog, Portal, Text, useTheme } from 'react-native-paper'
+import {
+  Button,
+  Chip,
+  Dialog,
+  IconButton,
+  Portal,
+  Text,
+  useTheme
+} from 'react-native-paper'
 import { formatCurrency } from '@renderer/lib/format'
 import type {
   ClientRecord,
@@ -12,6 +20,7 @@ import type {
 
 import { AppButton } from '../../src/components/AppButton'
 import { AppTextInput } from '../../src/components/AppTextInput'
+import { BarcodeScannerModal } from '../../src/components/BarcodeScannerModal'
 import { EmptyState } from '../../src/components/EmptyState'
 import { Screen } from '../../src/components/Screen'
 import { toAppError } from '../../src/data/controllers/validation'
@@ -19,7 +28,10 @@ import {
   listClientPets,
   listClientsDirectory
 } from '../../src/features/clients/clients-service'
-import { listInventory } from '../../src/features/inventory/inventory-service'
+import {
+  findProductByCode,
+  listInventory
+} from '../../src/features/inventory/inventory-service'
 import { registerSale } from '../../src/features/sales/sales-service'
 import { TOUCH_TARGET } from '../../src/theme/tokens'
 
@@ -45,7 +57,9 @@ export default function SellScreen() {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('efectivo')
   const [discount, setDiscount] = useState('')
   const [checkoutVisible, setCheckoutVisible] = useState(false)
+  const [scannerVisible, setScannerVisible] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
+  const [scanError, setScanError] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [client, setClient] = useState<ClientRecord | null>(null)
@@ -143,6 +157,20 @@ export default function SellScreen() {
     })
   }
 
+  const handleBarcode = (code: string) => {
+    const product = findProductByCode(code)
+
+    if (!product) {
+      setScanError(`No hay un producto con el código ${code}`)
+      return
+    }
+
+    setScanError(null)
+    setSearch('')
+    addToCart(product)
+    setMessage(`${product.name} agregado al carrito`)
+  }
+
   const changeQuantity = (productId: number, delta: number) => {
     setCart((current) =>
       current
@@ -209,13 +237,23 @@ export default function SellScreen() {
 
   return (
     <Screen title="Vender" subtitle="Punto de venta táctil con cálculo de vuelto.">
-      <AppTextInput
-        dense
-        label="Buscar producto"
-        onChangeText={setSearch}
-        placeholder="Nombre, SKU o código de barras"
-        value={search}
-      />
+      <View style={styles.searchBar}>
+        <AppTextInput
+          dense
+          label="Buscar producto"
+          onChangeText={setSearch}
+          placeholder="Nombre, SKU o código de barras"
+          style={styles.searchInput}
+          value={search}
+        />
+        <IconButton
+          accessibilityLabel="Escanear código de barras"
+          icon="barcode-scan"
+          mode="contained"
+          onPress={() => setScannerVisible(true)}
+          size={24}
+        />
+      </View>
 
       <View style={styles.clientBar}>
         <Button
@@ -238,6 +276,12 @@ export default function SellScreen() {
       {message ? (
         <Text variant="bodyMedium" style={{ color: theme.colors.primary }}>
           {message}
+        </Text>
+      ) : null}
+
+      {scanError ? (
+        <Text variant="bodyMedium" style={{ color: theme.colors.error }}>
+          {scanError}
         </Text>
       ) : null}
 
@@ -319,6 +363,12 @@ export default function SellScreen() {
           Historial de ventas
         </Button>
       </View>
+
+      <BarcodeScannerModal
+        onClose={() => setScannerVisible(false)}
+        onScanned={handleBarcode}
+        visible={scannerVisible}
+      />
 
       <Portal>
         <Dialog
@@ -440,6 +490,14 @@ export default function SellScreen() {
 }
 
 const styles = StyleSheet.create({
+  searchBar: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 8
+  },
+  searchInput: {
+    flex: 1
+  },
   products: {
     flexDirection: 'row',
     flexWrap: 'wrap',

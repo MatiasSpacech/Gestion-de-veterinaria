@@ -1,7 +1,13 @@
+﻿import { Ionicons } from '@expo/vector-icons'
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router'
 import { useCallback, useState } from 'react'
-import { Linking, StyleSheet, View } from 'react-native'
-import { Button, Text, useTheme } from 'react-native-paper'
+import { Image, Linking, StyleSheet, View } from 'react-native'
+import {
+  ActivityIndicator,
+  Button,
+  Text,
+  useTheme
+} from 'react-native-paper'
 import { formatDate, formatPetSex } from '@renderer/lib/format'
 
 import { AppButton } from '../../src/components/AppButton'
@@ -9,11 +15,21 @@ import { EmptyState } from '../../src/components/EmptyState'
 import { ListRow } from '../../src/components/ListRow'
 import { Screen } from '../../src/components/Screen'
 import { SectionCard } from '../../src/components/SectionCard'
+import { toAppError } from '../../src/data/controllers/validation'
+import {
+  capturePetPhoto,
+  deletePetPhoto,
+  getPetPhotoUri,
+  type PetPhotoSource
+} from '../../src/data/pet-photos'
 import {
   getClient,
   listClientPets,
-  listPetHistory
+  listPetHistory,
+  updatePetRecord
 } from '../../src/features/clients/clients-service'
+import { getBusinessProfile } from '../../src/features/settings/settings-service'
+import { buildWhatsAppUrl, normalizeWhatsAppPhone } from '../../src/lib/whatsapp'
 import type { ClientDetail, MedicalRecord, PetRecord } from '@shared/types'
 
 export default function ClientDetailScreen() {
@@ -26,8 +42,13 @@ export default function ClientDetailScreen() {
   const [pets, setPets] = useState<PetRecord[]>([])
   const [selectedPet, setSelectedPet] = useState<PetRecord | null>(null)
   const [history, setHistory] = useState<MedicalRecord[]>([])
+  const [photoBusy, setPhotoBusy] = useState(false)
+  const [photoError, setPhotoError] = useState<string | null>(null)
 
   const selectedPetId = selectedPet?.id ?? null
+  const photoUri = selectedPet
+    ? getPetPhotoUri(selectedPet.photoFileName)
+    : null
 
   const load = useCallback(() => {
     setClient(getClient(clientId))
@@ -66,6 +87,53 @@ export default function ClientDetailScreen() {
     router.push(`/mascotas/${pet.id}/registro`)
   }
 
+  const applyPhoto = async (source: PetPhotoSource | null) => {
+    if (!selectedPet) {
+      return
+    }
+
+    setPhotoBusy(true)
+    setPhotoError(null)
+
+    try {
+      let photoFileName: string | null = null
+
+      if (source !== null) {
+        photoFileName = await capturePetPhoto(source)
+
+        if (!photoFileName) {
+          return
+        }
+      }
+
+      const previousPhoto = selectedPet.photoFileName
+
+      updatePetRecord({
+        id: selectedPet.id,
+        clientId: selectedPet.clientId,
+        name: selectedPet.name,
+        species: selectedPet.species,
+        breed: selectedPet.breed,
+        sex: selectedPet.sex,
+        birthDate: selectedPet.birthDate,
+        color: selectedPet.color,
+        weightKg: selectedPet.weightKg,
+        sterilized: selectedPet.sterilized,
+        allergies: selectedPet.allergies,
+        chronicConditions: selectedPet.chronicConditions,
+        notes: selectedPet.notes,
+        photoFileName
+      })
+
+      deletePetPhoto(previousPhoto)
+      load()
+    } catch (caught) {
+      setPhotoError(toAppError(caught).message)
+    } finally {
+      setPhotoBusy(false)
+    }
+  }
+
   if (!client) {
     return (
       <Screen showBack title="Cliente">
@@ -75,6 +143,8 @@ export default function ClientDetailScreen() {
       </Screen>
     )
   }
+
+  const whatsappPhone = normalizeWhatsAppPhone(client.phone)
 
   return (
     <Screen showBack title={client.name} subtitle="Ficha del cliente">
@@ -87,6 +157,22 @@ export default function ClientDetailScreen() {
               description="Llamar al cliente"
               onPress={() => {
                 void Linking.openURL(`tel:${client.phone}`)
+              }}
+              showChevron={false}
+            />
+          ) : null}
+          {whatsappPhone ? (
+            <ListRow
+              icon="logo-whatsapp"
+              title="WhatsApp"
+              description="Abrir la conversaciÃ³n con el cliente"
+              onPress={() => {
+                void Linking.openURL(
+                  buildWhatsAppUrl(
+                    whatsappPhone,
+                    `Hola ${client.name}, te escribimos de ${getBusinessProfile().name}.`
+                  )
+                )
               }}
               showChevron={false}
             />
@@ -111,7 +197,7 @@ export default function ClientDetailScreen() {
             <ListRow
               icon="location-outline"
               title={client.address}
-              description="Dirección"
+              description="DirecciÃ³n"
               showChevron={false}
             />
           ) : null}
@@ -145,7 +231,7 @@ export default function ClientDetailScreen() {
           <EmptyState
             icon="paw-outline"
             title="Sin mascotas"
-            description="Este cliente todavía no tiene mascotas cargadas."
+            description="Este cliente todavÃ­a no tiene mascotas cargadas."
           />
         ) : (
           <View style={styles.list}>
@@ -155,8 +241,8 @@ export default function ClientDetailScreen() {
                 icon="paw"
                 title={pet.name}
                 description={`${pet.species}${
-                  pet.breed ? ` · ${pet.breed}` : ''
-                } · ${formatPetSex(pet.sex)}`}
+                  pet.breed ? ` Â· ${pet.breed}` : ''
+                } Â· ${formatPetSex(pet.sex)}`}
                 onPress={() => handleSelectPet(pet)}
               />
             ))}
@@ -166,10 +252,83 @@ export default function ClientDetailScreen() {
 
       {selectedPet ? (
         <SectionCard
+          title={`Foto de ${selectedPet.name}`}
+          subtitle="Se guarda en el almacenamiento privado de la app"
+        >
+          <View style={styles.photoArea}>
+            {photoUri ? (
+              <Image source={{ uri: photoUri }} style={styles.photo} />
+            ) : (
+              <View
+                style={[
+                  styles.photoPlaceholder,
+                  { backgroundColor: theme.colors.surfaceVariant }
+                ]}
+              >
+                <Ionicons
+                  name="paw-outline"
+                  size={48}
+                  color={theme.colors.onSurfaceVariant}
+                />
+                <Text
+                  variant="bodySmall"
+                  style={{ color: theme.colors.onSurfaceVariant }}
+                >
+                  Sin foto
+                </Text>
+              </View>
+            )}
+            {photoBusy ? (
+              <ActivityIndicator
+                style={styles.photoLoading}
+                color={theme.colors.primary}
+              />
+            ) : null}
+          </View>
+
+          <View style={styles.photoButtons}>
+            <AppButton
+              disabled={photoBusy}
+              icon="camera-outline"
+              mode="outlined"
+              onPress={() => void applyPhoto('camera')}
+            >
+              CÃ¡mara
+            </AppButton>
+            <AppButton
+              disabled={photoBusy}
+              icon="image-multiple-outline"
+              mode="outlined"
+              onPress={() => void applyPhoto('library')}
+            >
+              GalerÃ­a
+            </AppButton>
+            {selectedPet.photoFileName ? (
+              <AppButton
+                disabled={photoBusy}
+                icon="trash-can-outline"
+                mode="text"
+                onPress={() => void applyPhoto(null)}
+              >
+                Quitar
+              </AppButton>
+            ) : null}
+          </View>
+
+          {photoError ? (
+            <Text variant="bodyMedium" style={{ color: theme.colors.error }}>
+              {photoError}
+            </Text>
+          ) : null}
+        </SectionCard>
+      ) : null}
+
+      {selectedPet ? (
+        <SectionCard
           title={`Historial de ${selectedPet.name}`}
           subtitle={
             selectedPet.nextVaccineDue
-              ? `Próxima vacuna: ${formatDate(selectedPet.nextVaccineDue)}`
+              ? `PrÃ³xima vacuna: ${formatDate(selectedPet.nextVaccineDue)}`
               : 'Sin vacunas programadas'
           }
           action={
@@ -186,7 +345,7 @@ export default function ClientDetailScreen() {
             <EmptyState
               icon="document-text-outline"
               title="Sin registros"
-              description="Todavía no hay consultas ni vacunas cargadas."
+              description="TodavÃ­a no hay consultas ni vacunas cargadas."
             />
           ) : (
             <View style={styles.list}>
@@ -201,7 +360,7 @@ export default function ClientDetailScreen() {
                   >
                     {formatDate(record.date)}
                     {record.nextDueDate
-                      ? ` · próxima: ${formatDate(record.nextDueDate)}`
+                      ? ` Â· prÃ³xima: ${formatDate(record.nextDueDate)}`
                       : ''}
                   </Text>
                 </View>
@@ -213,7 +372,7 @@ export default function ClientDetailScreen() {
 
       {selectedPet ? (
         <AppButton
-          icon="document-text-outline"
+          icon="file-document-outline"
           mode="outlined"
           onPress={() => openNewRecord(selectedPet)}
         >
@@ -240,6 +399,32 @@ export default function ClientDetailScreen() {
 const styles = StyleSheet.create({
   list: {
     gap: 4
+  },
+  photoArea: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 200
+  },
+  photo: {
+    borderRadius: 16,
+    height: 200,
+    width: 200
+  },
+  photoPlaceholder: {
+    alignItems: 'center',
+    borderRadius: 16,
+    gap: 8,
+    height: 200,
+    justifyContent: 'center',
+    width: 200
+  },
+  photoLoading: {
+    position: 'absolute'
+  },
+  photoButtons: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8
   },
   record: {
     borderTopColor: 'rgba(0,0,0,0.08)',
