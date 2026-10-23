@@ -165,7 +165,7 @@ export default function ClientDetailScreen() {
             <ListRow
               icon="logo-whatsapp"
               title="WhatsApp"
-              description="Abrir la conversaciÃ³n con el cliente"
+              description="Abrir la conversación con el cliente"
               onPress={() => {
                 void Linking.openURL(
                   buildWhatsAppUrl(
@@ -197,7 +197,7 @@ export default function ClientDetailScreen() {
             <ListRow
               icon="location-outline"
               title={client.address}
-              description="DirecciÃ³n"
+              description="Dirección"
               showChevron={false}
             />
           ) : null}
@@ -231,7 +231,7 @@ export default function ClientDetailScreen() {
           <EmptyState
             icon="paw-outline"
             title="Sin mascotas"
-            description="Este cliente todavÃ­a no tiene mascotas cargadas."
+            description="Este cliente todavía no tiene mascotas cargadas."
           />
         ) : (
           <View style={styles.list}>
@@ -241,8 +241,8 @@ export default function ClientDetailScreen() {
                 icon="paw"
                 title={pet.name}
                 description={`${pet.species}${
-                  pet.breed ? ` Â· ${pet.breed}` : ''
-                } Â· ${formatPetSex(pet.sex)}`}
+                  pet.breed ? ` · ${pet.breed}` : ''
+                } · ${formatPetSex(pet.sex)}`}
                 onPress={() => handleSelectPet(pet)}
               />
             ))}
@@ -293,7 +293,7 @@ export default function ClientDetailScreen() {
               mode="outlined"
               onPress={() => void applyPhoto('camera')}
             >
-              CÃ¡mara
+              Cámara
             </AppButton>
             <AppButton
               disabled={photoBusy}
@@ -301,7 +301,7 @@ export default function ClientDetailScreen() {
               mode="outlined"
               onPress={() => void applyPhoto('library')}
             >
-              GalerÃ­a
+              Galería
             </AppButton>
             {selectedPet.photoFileName ? (
               <AppButton
@@ -328,7 +328,7 @@ export default function ClientDetailScreen() {
           title={`Historial de ${selectedPet.name}`}
           subtitle={
             selectedPet.nextVaccineDue
-              ? `PrÃ³xima vacuna: ${formatDate(selectedPet.nextVaccineDue)}`
+              ? `Próxima vacuna: ${formatDate(selectedPet.nextVaccineDue)}`
               : 'Sin vacunas programadas'
           }
           action={
@@ -345,7 +345,7 @@ export default function ClientDetailScreen() {
             <EmptyState
               icon="document-text-outline"
               title="Sin registros"
-              description="TodavÃ­a no hay consultas ni vacunas cargadas."
+              description="Todavía no hay consultas ni vacunas cargadas."
             />
           ) : (
             <View style={styles.list}>
@@ -360,7 +360,7 @@ export default function ClientDetailScreen() {
                   >
                     {formatDate(record.date)}
                     {record.nextDueDate
-                      ? ` Â· prÃ³xima: ${formatDate(record.nextDueDate)}`
+                      ? ` · próxima: ${formatDate(record.nextDueDate)}`
                       : ''}
                   </Text>
                 </View>
